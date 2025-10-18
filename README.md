@@ -19,7 +19,9 @@ These are more nebulous ideas that could be implemented further on by other stud
 - Not technically a feature but to allow for Corkboard to open up more into a wider program so other colleges could use as well
 
 ## How to start up off-line
-*This section will have instruction on how to properly install and use the webpage on a personal machine*
+Have the latest version of Visual Studio installed on your machine. Clone the repo and open the project in Visual Studio. Run Update-Database within NuGet Package Manager Console.  
+<br>
+After these steps the website should be ready to run.
 
 ## Screenshots
 *This section will have pictures with descriptions and videos showing off the webpage*
