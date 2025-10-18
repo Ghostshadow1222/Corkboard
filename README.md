@@ -39,4 +39,4 @@ These are more nebulous ideas that could be implemented further on by other stud
 For this section, I, Alex E, wanted to make something like a small note for future students who think that this project could be a cool idea to work on and develop so I thought adding a list of names for each team that has worked on this project, if you don't want to fair's fair but I just thought as non-professional as it may seem it's still cool to see how a small idea can grow and change.
 <br>
 <br>
-Team 1: Alex E,
+Team 1: Alex E, Aiden R,
