@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -16,6 +16,10 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\Aiden\Documents\school\25\fall25\CPW235\Corkboard\Corkboard\.editorconfig" />
   </ItemGroup>
 
 </Project>
