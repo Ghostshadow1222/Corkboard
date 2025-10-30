@@ -1,6 +1,7 @@
 using Corkboard.Data;
 using Corkboard.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
