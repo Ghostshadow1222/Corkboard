@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Chat | Corkboard";
+}
+
+
+<div class="text-center">
+    <h4>Chats</h4>
+
+    @{
+        if (ViewData["ChatId"] != null)
+        {
+            <p>Chat ID is: @ViewData["ChatId"]</p>
+        }
+        else
+        {
+            <p>No Chat ID provided.</p>
+        }
+    }
+</div>
