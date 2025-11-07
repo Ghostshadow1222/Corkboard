@@ -1,5 +1,6 @@
 using Corkboard.Data;
 using Corkboard.Models;
+using Corkboard.Data.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,12 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<UserAccount>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Register domain services (scoped to match DbContext)
+builder.Services.AddScoped<IServerService, ServerService>();
+builder.Services.AddScoped<IChannelService, ChannelService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
