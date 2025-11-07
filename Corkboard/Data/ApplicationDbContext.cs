@@ -6,9 +6,9 @@ namespace Corkboard.Data;
 
 public class ApplicationDbContext : IdentityDbContext<UserAccount>
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-    }
+	public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+	{
+	}
 
 	public DbSet<Server> Servers { get; set; }
 	public DbSet<ServerMember> ServerMembers { get; set; }
