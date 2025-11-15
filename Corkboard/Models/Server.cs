@@ -56,6 +56,8 @@ public class Server
 	/// </summary>
 	public ICollection<ServerMember> Members { get; set; } = new List<ServerMember>();
 
+	public int MemberCount => Members.Count;
+
 	/// <summary>
 	/// Collection of channels that belong to this server.
 	/// </summary>

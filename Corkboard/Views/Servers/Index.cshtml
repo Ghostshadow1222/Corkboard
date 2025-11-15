@@ -1,0 +1,24 @@
+﻿@model List<Corkboard.Models.Server>
+@{
+}
+
+<h1>Servers</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Member Count</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var server in Model)
+        {
+            <tr>
+                <td><a asp-action="Details" asp-route="@server.Id"></a>@server.Id</td>
+                <td>@server.Name</td>
+                <td>@server.MemberCount</td>
+            </tr>
+        }
+    </tbody>
+</table>

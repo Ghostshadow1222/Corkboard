@@ -19,15 +19,27 @@ public class ServersController : Controller
 	// GET /Servers -> List servers the current user belongs to
 	public async Task<IActionResult> Index()
 	{
-		var userId = _userManager.GetUserId(User);
+		string? userId = _userManager.GetUserId(User);
 		if (userId == null)
 		{
 			return Challenge();
 		}
 
-		var servers = await _serverService.GetServersForUserAsync(userId);
+		List<Server> servers = await _serverService.GetServersForUserAsync(userId);
 
 		return View(servers);
+	}
+
+	// GET /Servers/Details/{id} -> View server details
+	[HttpGet("Servers/Details/{id}")]
+	public async Task<IActionResult> Details(int id)
+	{
+		Server? server = await _serverService.GetServerAsync(id);
+		if (server == null)
+		{
+			return RedirectToAction(nameof(Index));
+		}
+		return View(server);
 	}
 
 	// GET /Servers/Create -> Render server creation form
@@ -42,7 +54,7 @@ public class ServersController : Controller
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Create([Bind("Name,IconUrl,Description")] Server model)
 	{
-		var userId = _userManager.GetUserId(User);
+		string? userId = _userManager.GetUserId(User);
 		if (userId == null)
 		{
 			return Challenge();
@@ -54,7 +66,7 @@ public class ServersController : Controller
 			return View(model);
 		}
 
-		var server = new Server
+		Server server = new Server
 		{
 			Name = model.Name,
 			IconUrl = model.IconUrl,
@@ -72,13 +84,13 @@ public class ServersController : Controller
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Join(int id)
 	{
-		var userId = _userManager.GetUserId(User);
+		string? userId = _userManager.GetUserId(User);
 		if (userId == null)
 		{
 			return Challenge();
 		}
 
-		var server = await _serverService.GetServerAsync(id);
+		Server? server = await _serverService.GetServerAsync(id);
 		if (server == null)
 		{
 			return NotFound();
