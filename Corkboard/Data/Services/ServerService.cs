@@ -60,17 +60,28 @@ public class ServerService : IServerService
 	/// <inheritdoc/>
 	public async Task<List<Server>> GetServersForUserAsync(string userId)
 	{
-		return await _context.ServerMembers
-			.Where(sm => sm.UserId == userId)
-			.Include(sm => sm.Server)
-			.Select(sm => sm.Server)
+		// Query the Servers directly and include related data so the returned Server
+		// instances have their Members populated (MemberCount will be accurate).
+		return await _context.Servers
+			.Where(s => s.Members.Any(sm => sm.UserId == userId))
+			.Include(s => s.Members)
+				.ThenInclude(sm => sm.User)
+			.Include(s => s.Channels)
+			.Include(s => s.Owner)
 			.ToListAsync();
 	}
 
 	/// <inheritdoc/>
 	public async Task<Server?> GetServerAsync(int id)
 	{
-		return await _context.Servers.FindAsync(id);
+		// Use eager loading to include related collections and navigation properties so
+		// that callers (e.g. controller views) can see members, their users, channels and owner.
+		return await _context.Servers
+			.Include(s => s.Members)
+				.ThenInclude(sm => sm.User)
+			.Include(s => s.Channels)
+			.Include(s => s.Owner)
+			.SingleOrDefaultAsync(s => s.Id == id);
 	}
 
 	/// <inheritdoc/>
@@ -80,7 +91,7 @@ public class ServerService : IServerService
 		_context.Servers.Add(server);
 		await _context.SaveChangesAsync();
 
-		var member = new ServerMember
+		ServerMember member = new ServerMember
 		{
 			ServerId = server.Id,
 			UserId = ownerUserId,
@@ -88,7 +99,7 @@ public class ServerService : IServerService
 		};
 		_context.ServerMembers.Add(member);
 
-		var general = new Channel
+		Channel general = new Channel
 		{
 			Name = "general",
 			ServerId = server.Id
@@ -102,10 +113,10 @@ public class ServerService : IServerService
 	/// <inheritdoc/>
 	public async Task JoinServerAsync(int serverId, string userId)
 	{
-		var exists = await _context.ServerMembers.AnyAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
+		bool exists = await _context.ServerMembers.AnyAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
 		if (!exists)
 		{
-			var member = new ServerMember { ServerId = serverId, UserId = userId };
+			ServerMember member = new ServerMember { ServerId = serverId, UserId = userId };
 			_context.ServerMembers.Add(member);
 			await _context.SaveChangesAsync();
 		}

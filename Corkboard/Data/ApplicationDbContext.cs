@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount>
 
 	public DbSet<Server> Servers { get; set; }
 	public DbSet<ServerMember> ServerMembers { get; set; }
+	public DbSet<ServerInvite> ServerInvites { get; set; }
 	public DbSet<Channel> Channels { get; set; }
 	public DbSet<Message> Messages { get; set; }
 }
