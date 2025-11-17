@@ -6,16 +6,16 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Id</th>
             <th>Name</th>
             <th>Member Count</th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var server in Model)
         {
             <tr>
-                <td><a asp-action="Details" asp-route="@server.Id"></a>@server.Id</td>
+                <td><a asp-action="Details" asp-route-id="@server.Id">@server.Id</a></td>
                 <td>@server.Name</td>
                 <td>@server.MemberCount</td>
             </tr>
