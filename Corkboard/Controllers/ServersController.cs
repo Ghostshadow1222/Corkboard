@@ -46,13 +46,14 @@ public class ServersController : Controller
 	[HttpGet]
 	public IActionResult Create()
 	{
-		return View();
+		// Return an empty view model to the Razor Page
+		return View(new ServerViewModel());
 	}
 
 	// POST /Servers/Create -> Create a new server and auto-join as owner
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Create([Bind("Name,IconUrl,Description")] Server model)
+	public async Task<IActionResult> Create(ServerViewModel model)
 	{
 		string? userId = _userManager.GetUserId(User);
 		if (userId == null)
@@ -74,30 +75,33 @@ public class ServersController : Controller
 			OwnerId = userId
 		};
 
-		await _serverService.CreateServerAsync(server, userId);
+		// Create the server
+		server = await _serverService.CreateServerAsync(server, userId);
 
-		return RedirectToAction(nameof(Index));
+		return RedirectToAction(nameof(Details), new { id = server.Id });
+	}
+
+	[HttpGet]
+	public async Task<IActionResult> Join(int id)
+	{
+		Server? server = await _serverService.GetServerAsync(id);
+		if (server == null)
+		{
+			return View();
+		}
+		return View(server);
 	}
 
 	// POST /Servers/Join/{id} -> Join an existing server
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Join(int id)
+	public async Task<IActionResult> Join(ServerInvite invite)
 	{
-		string? userId = _userManager.GetUserId(User);
-		if (userId == null)
-		{
-			return Challenge();
-		}
+		// Invite validation
 
-		Server? server = await _serverService.GetServerAsync(id);
-		if (server == null)
-		{
-			return NotFound();
-		}
 
-		await _serverService.JoinServerAsync(id, userId);
+		// Add user to server
 
-		return RedirectToAction("Index", "Channels", new { serverId = id });
+		return View();
 	}
 }
