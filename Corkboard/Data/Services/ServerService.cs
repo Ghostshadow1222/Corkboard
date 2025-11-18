@@ -38,6 +38,15 @@ public interface IServerService
 	/// <param name="serverId">Server id to join.</param>
 	/// <param name="userId">User id to add as a member.</param>
 	Task JoinServerAsync(int serverId, string userId);
+
+	/// <summary>
+	/// Determines whether the specified user is a moderator for the server identified by the given ID.
+	/// </summary>
+	/// <param name="id">The unique identifier of the server to check moderator status for.</param>
+	/// <param name="userId">The unique identifier of the user whose moderator status is to be verified. Cannot be null or empty.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the user is a
+	/// moderator for the specified entity; otherwise, <see langword="false"/>.</returns>
+	Task<bool> IsUserModeratorAsync(int id, string userId);
 }
 
 /// <summary>
@@ -95,7 +104,7 @@ public class ServerService : IServerService
 		{
 			ServerId = server.Id,
 			UserId = ownerUserId,
-			Role = "owner"
+			Role = RoleType.Owner
 		};
 		_context.ServerMembers.Add(member);
 
@@ -120,5 +129,14 @@ public class ServerService : IServerService
 			_context.ServerMembers.Add(member);
 			await _context.SaveChangesAsync();
 		}
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> IsUserModeratorAsync(int id, string userId)
+	{
+		return await _context.ServerMembers.AnyAsync(sm =>
+			sm.ServerId == id
+			&& sm.UserId == userId
+			&& (sm.Role == RoleType.Moderator || sm.Role == RoleType.Owner));
 	}
 }
