@@ -1,0 +1,15 @@
+﻿@model Corkboard.Models.ServerInvite
+@{
+}
+
+<h1>Invite Details</h1>
+
+<div>
+    <h2>Invite Code: @Model.Code</h2>
+    <p>Server Id: @Model.Server.Id</p>
+    <p>Created At: @Model.CreatedAt.ToString("g")</p>
+    <p>Expires At: @(Model.ExpiresAt.ToString("g"))</p>
+    <p>Current Uses: @Model.TimesUsed</p>
+    <p>Created By Id: @Model.CreatorId</p>
+    <p>Invited User Id: @Model.InvitedUserId</p>
+</div>

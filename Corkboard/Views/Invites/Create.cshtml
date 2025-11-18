@@ -1,0 +1,59 @@
+﻿@model Corkboard.Models.ServerInviteViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Invite</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="ServerId" class="control-label"></label>
+                <select asp-for="ServerId" class="form-control" asp-items="@(ViewBag.Servers as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)">
+                    <option value="">-- Select a server --</option>
+                </select>
+                <span asp-validation-for="ServerId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="UserId" class="control-label"></label>
+                <input asp-for="UserId" class="form-control" />
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DaysUntilExpires" class="control-label"></label>
+                <input asp-for="DaysUntilExpires" class="form-control" type="number" />
+                <span asp-validation-for="DaysUntilExpires" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input asp-for="OneTimeUse" class="form-check-input" />
+                    <label asp-for="OneTimeUse" class="form-check-label"></label>
+                </div>
+                <span asp-validation-for="OneTimeUse" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
