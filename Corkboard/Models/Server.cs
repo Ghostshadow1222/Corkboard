@@ -3,6 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Corkboard.Models;
 
+public enum PrivacyLevel
+{
+	[Display(Name = "Public")]
+	Public,
+
+	[Display(Name = "Moderators and above can create invites")]
+	ModeratorInvitePrivate,
+
+	[Display(Name = "Only owner can create invites")]
+	OwnerInvitePrivate
+}
+
 /// <summary>
 /// Represents a server (or guild) which contains channels and members.
 /// </summary>
@@ -62,4 +74,6 @@ public class Server
 	/// Collection of channels that belong to this server.
 	/// </summary>
 	public ICollection<Channel> Channels { get; set; } = new List<Channel>();
+
+	public PrivacyLevel PrivacyLevel { get; set; } = PrivacyLevel.ModeratorInvitePrivate;
 }
