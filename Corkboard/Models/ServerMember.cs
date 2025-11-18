@@ -3,6 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Corkboard.Models;
 
+public enum RoleType
+{
+	[Display(Name = "Member")]
+	Member,
+
+	[Display(Name = "Moderator")]
+	Moderator,
+
+	[Display(Name = "Owner")]
+	Owner
+}
+
 /// <summary>
 /// Represents a user's membership in a server, including their role and join time.
 /// </summary>
@@ -43,7 +55,7 @@ public class ServerMember
 	/// </summary>
 	[Required]
 	[MaxLength(50)]
-	public string Role { get; set; } = "member";
+	public RoleType Role { get; set; } = RoleType.Member;
 
 	/// <summary>
 	/// UTC timestamp when the user joined the server. Defaults to the time the instance is created.
