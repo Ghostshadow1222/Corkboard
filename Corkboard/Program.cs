@@ -18,6 +18,7 @@ builder.Services.AddDefaultIdentity<UserAccount>(options => options.SignIn.Requi
 builder.Services.AddScoped<IServerService, ServerService>();
 builder.Services.AddScoped<IChannelService, ChannelService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IInviteService, InviteService>();
 
 builder.Services.AddControllersWithViews();
 
