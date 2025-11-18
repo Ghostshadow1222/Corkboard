@@ -23,13 +23,24 @@ public class ServerInvite
 	[ForeignKey(nameof(ServerId))]
 	public Server Server { get; set; } = null!;
 
+	public string CreatorId { get; set; } = null!;
+
+	[ForeignKey(nameof(CreatorId))]
+	public UserAccount Creator { get; set; } = null!;
+
 	/// <summary>
 	/// Foreign key to the <see cref="UserAccount"/> who is invited to the server (optional).
 	/// </summary>
-	public string? UserId { get; set; }
+	public string? InvitedUserId { get; set; }
 
-	[ForeignKey(nameof(UserId))]
-	public UserAccount? User { get; set; }
+	[ForeignKey(nameof(InvitedUserId))]
+	public UserAccount? InvitedUser { get; set; }
+
+	/// <summary>
+	/// A randomly generated code used to join the server via this invite.
+	/// The code is a string of Capital letters and digits.
+	/// </summary>
+	public string Code { get; set; } = null!;
 
 	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
