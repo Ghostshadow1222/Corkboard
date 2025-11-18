@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Corkboard.Models;
 
+[NotMapped]
 public class ServerInviteViewModel
 {
 	/// <summary>
