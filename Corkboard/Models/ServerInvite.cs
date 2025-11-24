@@ -1,8 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Corkboard.Models;
 
+/// <summary>
+/// Represents an invitation to join a server, with optional expiration and usage limits.
+/// </summary>
+[Index(nameof(InviteCode), IsUnique = true)]
 public class ServerInvite
 {
 	/// <summary>
@@ -23,32 +28,61 @@ public class ServerInvite
 	[ForeignKey(nameof(ServerId))]
 	public Server Server { get; set; } = null!;
 
-	public string CreatorId { get; set; } = null!;
+	/// <summary>
+	/// Foreign key to the <see cref="UserAccount"/> who created this invite.
+	/// </summary>
+	public string CreatedById { get; set; } = null!;
 
-	[ForeignKey(nameof(CreatorId))]
-	public UserAccount Creator { get; set; } = null!;
+	/// <summary>
+	/// Navigation property for the user who created the invite.
+	/// </summary>
+	[ForeignKey(nameof(CreatedById))]
+	public UserAccount CreatedBy { get; set; } = null!;
 
 	/// <summary>
 	/// Foreign key to the <see cref="UserAccount"/> who is invited to the server (optional).
 	/// </summary>
 	public string? InvitedUserId { get; set; }
 
+	/// <summary>
+	/// Navigation property for the specific user this invite is intended for, if any.
+	/// </summary>
 	[ForeignKey(nameof(InvitedUserId))]
 	public UserAccount? InvitedUser { get; set; }
 
 	/// <summary>
 	/// A randomly generated code used to join the server via this invite.
-	/// The code is a string of Capital letters and digits.
+	/// The code is a string of capital letters and digits.
 	/// </summary>
-	public string Code { get; set; } = null!;
+	public string InviteCode { get; set; } = null!;
 
+	/// <summary>
+	/// UTC timestamp when the invite was created. Defaults to the time the instance is created.
+	/// </summary>
 	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-	public DateTime ExpiresAt { get; set; } = DateTime.UtcNow.AddDays(7);
+	/// <summary>
+	/// Optional UTC timestamp when this invite expires and can no longer be used.
+	/// </summary>
+	public DateTime? ExpiresAt { get; set; }
 
+	/// <summary>
+	/// Whether this invite can only be used once. Defaults to true.
+	/// </summary>
 	public bool OneTimeUse { get; set; } = true;
 
+	/// <summary>
+	/// Whether this invite has been marked as used (typically for one-time use invites).
+	/// </summary>
 	public bool IsUsed { get; set; } = false;
 
+	/// <summary>
+	/// The number of times this invite has been successfully redeemed.
+	/// </summary>
 	public int TimesUsed { get; set; } = 0;
+
+	/// <summary>
+	/// Collection of server memberships that were created using this invite.
+	/// </summary>
+	public List<ServerMember> CreatedMemberships { get; set; } = new List<ServerMember>();
 }
