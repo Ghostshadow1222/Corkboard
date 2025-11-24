@@ -165,5 +165,5 @@ Use this checklist when reviewing the Server model in production:
 ---
 
 **Generated:** 2024  
-**Framework:** .NET 9.0 / xUnit / FluentAssertions  
+**Framework:** .NET 10.0 / xUnit / FluentAssertions  
 **Status:** ? All Tests Passing
