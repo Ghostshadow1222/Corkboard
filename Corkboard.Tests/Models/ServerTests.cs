@@ -505,7 +505,7 @@ public class ServerTests
 		var results = new List<ValidationResult>();
 
 		// Act
-		var isValid = Validator.TryValidateObject(server, context, results, true);
+		Validator.TryValidateObject(server, context, results, true);
 
 		// Assert
 		// Validation will pass since MaxLength is not exceeded
