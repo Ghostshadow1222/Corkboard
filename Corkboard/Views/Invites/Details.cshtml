@@ -2,14 +2,16 @@
 @{
 }
 
+@* Display detailed information about a specific invite *@
 <h1>Invite Details</h1>
 
+@* All the metadata for this invite *@
 <div>
-    <h2>Invite Code: @Model.Code</h2>
+    <h2>Invite Code: @Model.InviteCode</h2>
     <p>Server Id: @Model.Server.Id</p>
     <p>Created At: @Model.CreatedAt.ToString("g")</p>
-    <p>Expires At: @(Model.ExpiresAt.ToString("g"))</p>
+    <p>Expires: @(Model.ExpiresAt?.ToString("g") ?? "Never")</p>
     <p>Current Uses: @Model.TimesUsed</p>
-    <p>Created By Id: @Model.CreatorId</p>
+    <p>Created By Id: @Model.CreatedById</p>
     <p>Invited User Id: @Model.InvitedUserId</p>
 </div>
