@@ -37,7 +37,7 @@ public interface IServerService
 	/// </summary>
 	/// <param name="serverId">Server id to join.</param>
 	/// <param name="userId">User id to add as a member.</param>
-	Task JoinServerAsync(int serverId, string userId);
+	Task<ServerMember?> JoinServerAsync(int serverId, string userId);
 
 	/// <summary>
 	/// Determines whether the specified user is a moderator for the server identified by the given ID.
@@ -120,7 +120,7 @@ public class ServerService : IServerService
 	}
 
 	/// <inheritdoc/>
-	public async Task JoinServerAsync(int serverId, string userId)
+	public async Task<ServerMember?> JoinServerAsync(int serverId, string userId)
 	{
 		bool exists = await _context.ServerMembers.AnyAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
 		if (!exists)
@@ -128,7 +128,9 @@ public class ServerService : IServerService
 			ServerMember member = new ServerMember { ServerId = serverId, UserId = userId };
 			_context.ServerMembers.Add(member);
 			await _context.SaveChangesAsync();
+			return member;
 		}
+		return null;
 	}
 
 	/// <inheritdoc/>

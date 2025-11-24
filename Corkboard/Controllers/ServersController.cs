@@ -125,20 +125,35 @@ public class ServersController : Controller
 	}
 
 	/// <summary>
-	/// Handles joining a server (currently incomplete/placeholder).
+	/// Handles the confirmation of joining a server.
 	/// POST /Servers/Join/{id}
 	/// </summary>
-	/// <param name="invite">The invite information for joining.</param>
-	/// <returns>View (implementation incomplete).</returns>
+	/// <param name="id">The server ID to join.</param>
+	/// <returns>Redirect to server details on success, or appropriate error response.</returns>
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Join(ServerInvite invite)
-	{
-		// Invite validation
+	[ActionName("Join")]
+	public async Task<IActionResult> JoinConfirmed(int id)
+    {
+		string? userId = _userManager.GetUserId(User);
+		if (userId == null)
+		{
+			return Challenge();;
+		}
 
+		Server? server = await _serverService.GetServerAsync(id);
+		if (server == null)
+		{
+			return RedirectToAction(nameof(Index));
+		}
 
-		// Add user to server
+		if (server.PrivacyLevel != PrivacyLevel.Public)
+		{
+			return Unauthorized();
+		}
 
-		return View();
-	}
+		await _serverService.JoinServerAsync(id, userId);
+
+        return RedirectToAction(nameof(Details), new { id = id });
+    }
 }
