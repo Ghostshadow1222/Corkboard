@@ -3,14 +3,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Corkboard.Models;
 
+/// <summary>
+/// Defines the privacy level for a server, controlling who can create invites.
+/// </summary>
 public enum PrivacyLevel
 {
+	/// <summary>
+	/// Server is publicly accessible and anyone can create invites.
+	/// </summary>
 	[Display(Name = "Public")]
 	Public,
 
+	/// <summary>
+	/// Only moderators and server owner can create invites.
+	/// </summary>
 	[Display(Name = "Moderators and above can create invites")]
 	ModeratorInvitePrivate,
 
+	/// <summary>
+	/// Only the server owner can create invites.
+	/// </summary>
 	[Display(Name = "Only owner can create invites")]
 	OwnerInvitePrivate
 }
@@ -68,6 +80,9 @@ public class Server
 	/// </summary>
 	public ICollection<ServerMember> Members { get; set; } = new List<ServerMember>();
 
+	/// <summary>
+	/// Gets the total number of members in this server.
+	/// </summary>
 	public int MemberCount => Members.Count;
 
 	/// <summary>
@@ -75,5 +90,8 @@ public class Server
 	/// </summary>
 	public ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
+	/// <summary>
+	/// Privacy level determining who can create invites to this server. Defaults to moderator-level privacy.
+	/// </summary>
 	public PrivacyLevel PrivacyLevel { get; set; } = PrivacyLevel.ModeratorInvitePrivate;
 }
