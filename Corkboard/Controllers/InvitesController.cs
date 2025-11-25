@@ -81,6 +81,17 @@ public class InvitesController : BaseController
 	{
 		string userId = CurrentUserId!;
 
+		if (serverId != invite.ServerId)
+		{
+			return BadRequest();
+		}
+
+		if (!ModelState.IsValid)
+		{
+			await PopulateServersViewBag(userId);
+			return View(invite);
+		}
+
 		// Validate invite creation authorization and business rules via service
 		InviteValidationResult validation = await _inviteService.ValidateCreateInviteAsync(userId, invite);
 
