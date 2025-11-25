@@ -116,6 +116,15 @@ public class InvitesController : Controller
 				await PopulateServersViewBag(userId);
 				return View(invite);
 			}
+			
+			// Check if user is trying to invite themselves
+			if (invitedUser.Id == userId)
+			{
+				ModelState.AddModelError("Username", "You cannot invite yourself.");
+				await PopulateServersViewBag(userId);
+				return View(invite);
+			}
+			
 			invitedUserId = invitedUser.Id;
 		}
 
@@ -181,7 +190,8 @@ public class InvitesController : Controller
 			return NotFound();
 		}
 
-		if (invite.InvitedUserId != null && invite.InvitedUserId != userId)
+		// if the invite is user-specific and the current user is the invited user, redirect to redeem page
+		if (invite.InvitedUserId != null && invite.InvitedUserId == userId)
 		{
 			return RedirectToAction(nameof(Redeem), new { code = invite.InviteCode });
 		}

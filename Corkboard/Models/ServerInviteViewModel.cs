@@ -68,5 +68,11 @@ public class ServerInviteViewModel : IValidatableObject
 				yield return new ValidationResult("Clear the expiration date/time or enable expiry.", new[] { nameof(ExpiresAt) });
 			}
 		}
+
+		// Invites for specific users cannot be one-time use (they can use it as many times as needed)
+		if (!string.IsNullOrEmpty(Username) && OneTimeUse)
+		{
+			yield return new ValidationResult("Invites for specific users cannot be one-time use.", new[] { nameof(Username), nameof(OneTimeUse) });
+		}
 	}
 }

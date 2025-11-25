@@ -8,7 +8,7 @@ namespace Corkboard.Models;
 /// Represents an invitation to join a server, with optional expiration and usage limits.
 /// </summary>
 [Index(nameof(InviteCode), IsUnique = true)]
-public class ServerInvite
+public class ServerInvite : IValidatableObject
 {
 	/// <summary>
 	/// Primary key for the server invite record.
@@ -85,4 +85,27 @@ public class ServerInvite
 	/// Collection of server memberships that were created using this invite.
 	/// </summary>
 	public List<ServerMember> CreatedMemberships { get; set; } = new List<ServerMember>();
+
+	public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+	{
+		if (InvitedUserId != null && OneTimeUse)
+		{
+			yield return new ValidationResult("Invites for specific users cannot be one-time use.", new[] { nameof(InvitedUserId), nameof(OneTimeUse) });
+		}
+
+		if (InvitedUserId != null && InvitedUserId == CreatedById)
+		{
+			yield return new ValidationResult("Users cannot invite themselves.", new[] { nameof(InvitedUserId), nameof(CreatedById) });
+		}
+
+		if (OneTimeUse && TimesUsed > 1)
+		{
+			yield return new ValidationResult("One-time use invites cannot have been used more than once.", new[] { nameof(TimesUsed) });
+		}
+
+		if (ExpiresAt != null && ExpiresAt <= CreatedAt)
+		{
+			yield return new ValidationResult("Expiration date must be after the creation date.", new[] { nameof(ExpiresAt) });
+		}
+	}
 }
