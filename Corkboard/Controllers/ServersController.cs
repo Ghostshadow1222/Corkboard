@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Corkboard.Data.Services;
 using Corkboard.Models;
 
@@ -8,6 +9,7 @@ namespace Corkboard.Controllers;
 /// <summary>
 /// Controller for managing servers, including listing, creating, viewing details, and joining.
 /// </summary>
+[Authorize]
 public class ServersController : Controller
 {
 	private readonly IServerService _serverService;
@@ -31,11 +33,7 @@ public class ServersController : Controller
 	/// <returns>View with list of user's servers.</returns>
 	public async Task<IActionResult> Index()
 	{
-		string? userId = _userManager.GetUserId(User);
-		if (userId == null)
-		{
-			return Challenge();
-		}
+		string userId = _userManager.GetUserId(User)!;
 
 		List<Server> servers = await _serverService.GetServersForUserAsync(userId);
 
@@ -51,11 +49,7 @@ public class ServersController : Controller
 	[HttpGet("Servers/Details/{id}")]
 	public async Task<IActionResult> Details(int serverId)
 	{
-		string? userId = _userManager.GetUserId(User);
-		if (userId == null)
-		{
-			return Challenge();
-		}
+		string userId = _userManager.GetUserId(User)!;
 
 		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
@@ -92,11 +86,7 @@ public class ServersController : Controller
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Create(ServerViewModel model)
 	{
-		string? userId = _userManager.GetUserId(User);
-		if (userId == null)
-		{
-			return Challenge();
-		}
+		string userId = _userManager.GetUserId(User)!;
 
 		// Basic validation
 		if (!ModelState.IsValid)
@@ -146,11 +136,7 @@ public class ServersController : Controller
 	[ActionName("Join")]
 	public async Task<IActionResult> JoinConfirmed(int id)
     {
-		string? userId = _userManager.GetUserId(User);
-		if (userId == null)
-		{
-			return Challenge();;
-		}
+		string userId = _userManager.GetUserId(User)!;
 
 		Server? server = await _serverService.GetServerAsync(id);
 		if (server == null)
