@@ -106,12 +106,12 @@ public class ServersController : BaseController
 	/// Displays information about a server before joining.
 	/// GET /Servers/Join/{id}
 	/// </summary>
-	/// <param name="id">The server ID to join.</param>
+	/// <param name="serverId">The server ID to join.</param>
 	/// <returns>View with server information, or empty view if not found.</returns>
 	[HttpGet]
-	public async Task<IActionResult> Join(int id)
+	public async Task<IActionResult> Join(int serverId)
 	{
-		Server? server = await _serverService.GetServerAsync(id);
+		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
 		{
 			return View();
@@ -123,16 +123,16 @@ public class ServersController : BaseController
 	/// Handles the confirmation of joining a server.
 	/// POST /Servers/Join/{id}
 	/// </summary>
-	/// <param name="id">The server ID to join.</param>
+	/// <param name="serverId">The server ID to join.</param>
 	/// <returns>Redirect to server details on success, or appropriate error response.</returns>
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	[ActionName("Join")]
-	public async Task<IActionResult> JoinConfirmed(int id)
+	public async Task<IActionResult> JoinConfirmed(int serverId)
     {
 		string userId = CurrentUserId!;
 
-		Server? server = await _serverService.GetServerAsync(id);
+		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
 		{
 			return RedirectToAction(nameof(Index));
@@ -143,8 +143,8 @@ public class ServersController : BaseController
 			return Unauthorized();
 		}
 
-		await _serverService.JoinServerAsync(id, userId);
+		await _serverService.JoinServerAsync(serverId, userId);
 
-        return RedirectToAction(nameof(Details), new { id = id });
+        return RedirectToAction(nameof(Details), new { serverId = serverId });
     }
 }
