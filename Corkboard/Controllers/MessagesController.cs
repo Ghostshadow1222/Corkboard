@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Corkboard.Data.Services;
 using Corkboard.Data.DTOs;
+using Corkboard.Models;
 
 namespace Corkboard.Controllers;
 
@@ -9,7 +11,7 @@ namespace Corkboard.Controllers;
 /// Controller for displaying and retrieving messages within channels.
 /// </summary>
 [Authorize]
-public class MessagesController : Controller
+public class MessagesController : BaseController
 {
 	private readonly IMessageService _messageService;
 
@@ -17,7 +19,9 @@ public class MessagesController : Controller
 	/// Creates a new instance of <see cref="MessagesController"/>.
 	/// </summary>
 	/// <param name="messageService">Message service for data operations.</param>
-	public MessagesController(IMessageService messageService)
+	/// <param name="userManager">User manager for identity operations.</param>
+	public MessagesController(IMessageService messageService, UserManager<UserAccount> userManager)
+		: base(userManager)
 	{
 		_messageService = messageService;
 	}

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Corkboard.Data.Services;
 using Corkboard.Models;
 
@@ -9,7 +10,7 @@ namespace Corkboard.Controllers;
 /// Controller for managing and displaying channels within a server.
 /// </summary>
 [Authorize]
-public class ChannelsController : Controller
+public class ChannelsController : BaseController
 {
 	private readonly IChannelService _channelService;
 
@@ -17,7 +18,9 @@ public class ChannelsController : Controller
 	/// Creates a new instance of <see cref="ChannelsController"/>.
 	/// </summary>
 	/// <param name="channelService">Channel service for data operations.</param>
-	public ChannelsController(IChannelService channelService)
+	/// <param name="userManager">User manager for identity operations.</param>
+	public ChannelsController(IChannelService channelService, UserManager<UserAccount> userManager)
+		: base(userManager)
 	{
 		_channelService = channelService;
 	}

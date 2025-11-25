@@ -10,10 +10,9 @@ namespace Corkboard.Controllers;
 /// Controller for managing servers, including listing, creating, viewing details, and joining.
 /// </summary>
 [Authorize]
-public class ServersController : Controller
+public class ServersController : BaseController
 {
 	private readonly IServerService _serverService;
-	private readonly UserManager<UserAccount> _userManager;
 
 	/// <summary>
 	/// Creates a new instance of <see cref="ServersController"/>.
@@ -21,9 +20,9 @@ public class ServersController : Controller
 	/// <param name="serverService">Server service for data operations.</param>
 	/// <param name="userManager">User manager for identity operations.</param>
 	public ServersController(IServerService serverService, UserManager<UserAccount> userManager)
+		: base(userManager)
 	{
 		_serverService = serverService;
-		_userManager = userManager;
 	}
 
 	/// <summary>
@@ -33,7 +32,7 @@ public class ServersController : Controller
 	/// <returns>View with list of user's servers.</returns>
 	public async Task<IActionResult> Index()
 	{
-		string userId = _userManager.GetUserId(User)!;
+		string userId = CurrentUserId!;
 
 		List<Server> servers = await _serverService.GetServersForUserAsync(userId);
 
@@ -81,7 +80,7 @@ public class ServersController : Controller
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Create(ServerViewModel model)
 	{
-		string userId = _userManager.GetUserId(User)!;
+		string userId = CurrentUserId!;
 
 		// Basic validation
 		if (!ModelState.IsValid)
@@ -131,7 +130,7 @@ public class ServersController : Controller
 	[ActionName("Join")]
 	public async Task<IActionResult> JoinConfirmed(int id)
     {
-		string userId = _userManager.GetUserId(User)!;
+		string userId = CurrentUserId!;
 
 		Server? server = await _serverService.GetServerAsync(id);
 		if (server == null)

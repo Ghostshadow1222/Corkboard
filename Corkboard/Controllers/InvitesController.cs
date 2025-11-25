@@ -14,11 +14,10 @@ namespace Corkboard.Controllers;
 /// Requires authentication for all actions.
 /// </summary>
 [Authorize]
-public class InvitesController : Controller
+public class InvitesController : BaseController
 {
 	private readonly IInviteService _inviteService;
 	private readonly IServerService _serverService;
-	private readonly UserManager<UserAccount> _userManager;
 
 	/// <summary>
 	/// Creates a new instance of <see cref="InvitesController"/>.
@@ -27,10 +26,10 @@ public class InvitesController : Controller
 	/// <param name="serverService">Server service for authorization checks.</param>
 	/// <param name="userManager">User manager for identity operations.</param>
 	public InvitesController(IInviteService inviteService, IServerService serverService, UserManager<UserAccount> userManager)
+		: base(userManager)
 	{
 		_inviteService = inviteService;
 		_serverService = serverService;
-		_userManager = userManager;
 	}
 
 	/// <summary>
@@ -41,7 +40,7 @@ public class InvitesController : Controller
 	[HttpGet]
 	public async Task<IActionResult> Index()
 	{
-		string? userId = _userManager.GetUserId(User);
+		string? userId = CurrentUserId;
 		if (userId == null)
 		{
 			return Challenge();
@@ -59,7 +58,7 @@ public class InvitesController : Controller
 	/// <returns>View with invite creation form, or redirect if user has no servers.</returns>
 	public async Task<IActionResult> Create()
 	{
-		string? userId = _userManager.GetUserId(User);
+		string? userId = CurrentUserId;
 		if (userId == null)
 		{
 			return Challenge();
@@ -86,7 +85,7 @@ public class InvitesController : Controller
 	[Authorize(Policy = "ServerModerator")]
 	public async Task<IActionResult> Create(int serverId, ServerInviteViewModel invite)
 	{
-		string? userId = _userManager.GetUserId(User);
+		string? userId = CurrentUserId;
 		if (userId == null)
 		{
 			return Unauthorized();
@@ -183,7 +182,7 @@ public class InvitesController : Controller
 	[HttpGet("Invites/Details/{id}")]
 	public async Task<IActionResult> Details(int id)
 	{
-		string userId = _userManager.GetUserId(User)!;
+		string userId = CurrentUserId!;
 		ServerInvite? invite = await _inviteService.GetInviteAsync(id);
 		if (invite == null || invite.CreatedById != userId)
 		{
@@ -208,7 +207,7 @@ public class InvitesController : Controller
 	[HttpGet("/Invites/Redeem/{code}")]
 	public async Task<IActionResult> Redeem(string code)
 	{
-		string? userId = _userManager.GetUserId(User);
+		string? userId = CurrentUserId;
 		if (userId == null)
 		{
 			return Unauthorized();
@@ -240,7 +239,7 @@ public class InvitesController : Controller
 	[ActionName("Redeem")]
 	public async Task<IActionResult> RedeemConfirmed(string code)
 	{
-		string? userId = _userManager.GetUserId(User);
+		string? userId = CurrentUserId;
 		if (userId == null)
 		{
 			return Unauthorized();
@@ -300,7 +299,7 @@ public class InvitesController : Controller
 	/// <param name="userId">The user ID to retrieve servers for.</param>
 	private async Task PopulateServersViewBag(string userId)
 	{
-		System.Collections.Generic.List<Server> servers = await _serverService.GetServersForUserAsync(userId);
+		List<Server> servers = await _serverService.GetServersForUserAsync(userId);
 		ViewBag.Servers = new SelectList(servers, "Id", "Name");
 	}
 }
