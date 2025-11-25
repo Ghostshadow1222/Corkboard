@@ -73,25 +73,25 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var expiresToggle = document.getElementById('expiresToggle');
-                var expiresPicker = document.getElementById('expiresPicker');
-
-                // Set initial visibility based on the checkbox state
-                expiresPicker.style.display = expiresToggle.checked ? 'block' : 'none';
-
-                // Add event listener to toggle visibility
-                expiresToggle.addEventListener('change', function() {
-                    if (this.checked) {
-                        expiresPicker.style.display = 'block';
-                    } else {
-                        expiresPicker.style.display = 'none';
-                        expiresPicker.querySelector('input').value = ''; // Clear the date input when hiding
-                    }
-                });
-            });
-        </script>
     }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var expiresToggle = document.getElementById('expiresToggle');
+            var expiresPicker = document.getElementById('expiresPicker');
+
+            // Set initial visibility based on the checkbox state
+            expiresPicker.style.display = expiresToggle.checked ? 'block' : 'none';
+
+            // Add event listener to toggle visibility
+            expiresToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    expiresPicker.style.display = 'block';
+                } else {
+                    expiresPicker.style.display = 'none';
+                    expiresPicker.querySelector('input').value = ''; // Clear the date input when hiding
+                }
+            });
+        });
+    </script>
 }

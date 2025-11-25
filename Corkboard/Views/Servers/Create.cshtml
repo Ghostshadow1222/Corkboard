@@ -10,7 +10,7 @@
 @* Display any error messages that came back from the server *@
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-info">
+    <div class="alert alert-danger">
         @TempData["ErrorMessage"]
     </div>
 }
