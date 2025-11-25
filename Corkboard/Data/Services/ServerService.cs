@@ -35,18 +35,32 @@ public interface IServerService
 	/// <summary>
 	/// Adds the specified user as a member of the given server if they are not already a member.
 	/// </summary>
+	/// <remarks>
+	/// This method skips the usual invitiation process and directly adds the user as a member.
+	/// It is the caller's responsibility to ensure that the user should be allowed to join.
+	/// </remarks>
 	/// <param name="serverId">Server id to join.</param>
 	/// <param name="userId">User id to add as a member.</param>
+	/// <returns>The created <see cref="ServerMember"/> if the user was added; otherwise, <c>null</c>.</returns>
 	Task<ServerMember?> JoinServerAsync(int serverId, string userId);
 
 	/// <summary>
 	/// Determines whether the specified user is a moderator for the server identified by the given ID.
 	/// </summary>
-	/// <param name="id">The unique identifier of the server to check moderator status for.</param>
+	/// <param name="serverId">The unique identifier of the server to check moderator status for.</param>
 	/// <param name="userId">The unique identifier of the user whose moderator status is to be verified. Cannot be null or empty.</param>
 	/// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the user is a
 	/// moderator for the specified entity; otherwise, <see langword="false"/>.</returns>
-	Task<bool> IsUserModeratorAsync(int id, string userId);
+	Task<bool> IsUserModeratorOfServerAsync(int serverId, string userId);
+
+	/// <summary>
+    /// Determines whether the specified user is a member of the given server.
+    /// </summary>
+    /// <param name="serverId">The unique identifier of the server to check membership for.</param>
+    /// <param name="userId">The unique identifier of the user whose membership status is to be verified. Cannot be null or empty.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the user is a
+    /// member of the specified server; otherwise, <see langword="false"/>.</returns>
+	Task<bool> IsUserMemberOfServerAsync(int serverId, string userId);
 }
 
 /// <summary>
@@ -122,8 +136,15 @@ public class ServerService : IServerService
 	/// <inheritdoc/>
 	public async Task<ServerMember?> JoinServerAsync(int serverId, string userId)
 	{
-		bool exists = await _context.ServerMembers.AnyAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
-		if (!exists)
+		bool serverExists = await _context.Servers.AnyAsync(s => s.Id == serverId);
+		bool userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+		if (!serverExists || !userExists)
+		{
+			return null;
+		}
+
+		bool existingMembershipExists = await _context.ServerMembers.AnyAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
+		if (!existingMembershipExists)
 		{
 			ServerMember member = new ServerMember { ServerId = serverId, UserId = userId };
 			_context.ServerMembers.Add(member);
@@ -134,11 +155,18 @@ public class ServerService : IServerService
 	}
 
 	/// <inheritdoc/>
-	public async Task<bool> IsUserModeratorAsync(int id, string userId)
+	public async Task<bool> IsUserModeratorOfServerAsync(int id, string userId)
 	{
 		return await _context.ServerMembers.AnyAsync(sm =>
 			sm.ServerId == id
 			&& sm.UserId == userId
 			&& (sm.Role == RoleType.Moderator || sm.Role == RoleType.Owner));
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> IsUserMemberOfServerAsync(int serverId, string userId)
+	{
+		return await _context.ServerMembers.AnyAsync(sm =>
+			sm.ServerId == serverId && sm.UserId == userId);
 	}
 }
