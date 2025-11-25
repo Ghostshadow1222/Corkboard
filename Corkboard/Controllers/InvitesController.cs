@@ -228,7 +228,7 @@ public class InvitesController : BaseController
 			return View(invite);
 		}
 
-		return RedirectToAction(nameof(ServersController.Details), "Servers", new { id = invite.ServerId });
+		return RedirectToAction(nameof(ServersController.Details), "Servers", new { serverId = invite.ServerId });
 	}
 
 	/// <summary>
