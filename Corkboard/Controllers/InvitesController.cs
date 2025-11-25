@@ -247,7 +247,7 @@ public class InvitesController : Controller
 			return NotFound();
 		}
 
-		if (invite.IsUsed || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
+		if ((invite.OneTimeUse && invite.IsUsed) || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
 		{
 			ModelState.AddModelError(string.Empty, "This invite is expired or already used.");
 			return View(invite);
