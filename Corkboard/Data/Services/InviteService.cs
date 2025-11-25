@@ -59,6 +59,15 @@ public interface IInviteService
 	/// <param name="length">The desired length of the invite code.</param>
 	/// <returns>A unique invite code string.</returns>
 	public Task<string> GenerateUniqueInviteCodeAsync(int length = 8);
+
+	/// <summary>
+	/// Validates all authorization and business rules for creating a server invite.
+	/// Checks server existence, privacy level permissions, invited user validation, and expiry rules.
+	/// </summary>
+	/// <param name="currentUserId">The ID of the user attempting to create the invite.</param>
+	/// <param name="invite">The invite view model with creation details.</param>
+	/// <returns>Validation result with errors, authorized status, and validated data.</returns>
+	public Task<InviteValidationResult> ValidateCreateInviteAsync(string currentUserId, ServerInviteViewModel invite);
 }
 
 /// <summary>
@@ -67,14 +76,17 @@ public interface IInviteService
 public class InviteService : IInviteService
 {
 	private readonly ApplicationDbContext _context;
+	private readonly Microsoft.AspNetCore.Identity.UserManager<UserAccount> _userManager;
 
 	/// <summary>
 	/// Creates a new instance of <see cref="InviteService"/>.
 	/// </summary>
 	/// <param name="context">Application DbContext (injected).</param>
-	public InviteService(ApplicationDbContext context)
+	/// <param name="userManager">User manager for identity operations (injected).</param>
+	public InviteService(ApplicationDbContext context, Microsoft.AspNetCore.Identity.UserManager<UserAccount> userManager)
 	{
 		_context = context;
+		_userManager = userManager;
 	}
 
 	/// <inheritdoc/>
@@ -218,4 +230,65 @@ public class InviteService : IInviteService
 		}
 		throw new System.Exception($"Failed to generate a unique invite code after {maxRetries} retries.");
     }
+
+	/// <inheritdoc/>
+	public async Task<InviteValidationResult> ValidateCreateInviteAsync(string currentUserId, ServerInviteViewModel invite)
+	{
+		InviteValidationResult result = new InviteValidationResult();
+
+		if (string.IsNullOrWhiteSpace(currentUserId))
+		{
+			result.IsValid = false;
+			result.Unauthorized = true;
+			return result;
+		}
+
+		Server? server = await _context.Servers.FindAsync(invite.ServerId);
+		if (server == null)
+		{
+			result.IsValid = false;
+			result.NotFound = true;
+			return result;
+		}
+
+		// Check for owner-only privacy level
+		if (server.PrivacyLevel == PrivacyLevel.OwnerInvitePrivate && server.OwnerId != currentUserId)
+		{
+			result.IsValid = false;
+			result.Unauthorized = true;
+			return result;
+		}
+
+		// Resolve invited username, if present
+		if (!string.IsNullOrWhiteSpace(invite.Username))
+		{
+			string username = invite.Username.Trim();
+			UserAccount? invitedUser = await _userManager.FindByNameAsync(username);
+			if (invitedUser == null)
+			{
+				result.IsValid = false;
+				result.FieldErrors["Username"] = "The specified user does not exist.";
+				return result;
+			}
+			if (invitedUser.Id == currentUserId)
+			{
+				result.IsValid = false;
+				result.FieldErrors["Username"] = "You cannot invite yourself.";
+				return result;
+			}
+			result.InvitedUserId = invitedUser.Id;
+		}
+
+		// Validate expiry
+		if (invite.Expires && invite.ExpiresAt != null && invite.ExpiresAt <= DateTime.UtcNow)
+		{
+			result.IsValid = false;
+			result.FieldErrors["ExpiresAt"] = "Expiration must be a future date/time.";
+		}
+
+		// If no expiry selected, keep null
+		result.ValidatedExpiresAt = invite.Expires ? invite.ExpiresAt : null;
+
+		return result;
+	}
 }

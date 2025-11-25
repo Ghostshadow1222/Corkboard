@@ -91,67 +91,37 @@ public class InvitesController : BaseController
 			return Unauthorized();
 		}
 
-		Server? server = await _serverService.GetServerAsync(invite.ServerId);
-		if (server == null)
+		// Validate invite creation authorization and business rules via service
+		InviteValidationResult validation = await _inviteService.ValidateCreateInviteAsync(userId, invite);
+
+		if (validation.NotFound)
 		{
 			return NotFound();
 		}
-
-		// Check for owner-only privacy level
-		if (server.PrivacyLevel == PrivacyLevel.OwnerInvitePrivate && server.OwnerId != userId)
+		if (validation.Unauthorized)
 		{
 			return Unauthorized();
 		}
 
-		// Check for user specific invite and validate if so
-		string? invitedUserId = null;
-		if (!string.IsNullOrWhiteSpace(invite.Username))
+		if (!validation.IsValid)
 		{
-			string username = invite.Username!.Trim();
-			UserAccount? invitedUser = await _userManager.FindByNameAsync(username);
-			if (invitedUser == null)
+			foreach (KeyValuePair<string, string> kv in validation.FieldErrors)
 			{
-				ModelState.AddModelError("Username", "The specified user does not exist.");
-				await PopulateServersViewBag(userId);
-				return View(invite);
+				ModelState.AddModelError(kv.Key, kv.Value);
 			}
-			
-			// Check if user is trying to invite themselves
-			if (invitedUser.Id == userId)
-			{
-				ModelState.AddModelError("Username", "You cannot invite yourself.");
-				await PopulateServersViewBag(userId);
-				return View(invite);
-			}
-			
-			invitedUserId = invitedUser.Id;
-		}
-
-		// Validate expiry input
-		if (invite.Expires && invite.ExpiresAt != null && invite.ExpiresAt <= DateTime.UtcNow)
-		{
-			ModelState.AddModelError("ExpiresAt", "Expiration must be a future date/time.");
-		}
-
-		if (!ModelState.IsValid)
-		{
 			await PopulateServersViewBag(userId);
 			return View(invite);
 		}
 
-		// END validation
-
-		// Create the invite
+		// Create the invite using validated data
 		string inviteCode = await _inviteService.GenerateUniqueInviteCodeAsync(8);
-	
-		// If user did not opt-in to an expiration, ensure ExpiresAt is null
-		DateTime? expiresAt = invite.Expires ? invite.ExpiresAt : null;
+		DateTime? expiresAt = validation.ValidatedExpiresAt;
 
 		ServerInvite newInvite = new ServerInvite
 		{
 			ServerId = invite.ServerId,
 			CreatedById = userId,
-			InvitedUserId = invitedUserId,
+			InvitedUserId = validation.InvitedUserId,
 			InviteCode = inviteCode,
 			CreatedAt = DateTime.UtcNow,
 			ExpiresAt = expiresAt,
