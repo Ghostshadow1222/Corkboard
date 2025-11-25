@@ -182,11 +182,16 @@ public class InvitesController : Controller
 	[HttpGet("Invites/Details/{id}")]
 	public async Task<IActionResult> Details(int id)
 	{
+		string userId = _userManager.GetUserId(User)!;
 		ServerInvite? invite = await _inviteService.GetInviteAsync(id);
-
-		if (invite == null)
+		if (invite == null || invite.CreatedById != userId)
 		{
 			return NotFound();
+		}
+
+		if (invite.InvitedUserId != null && invite.InvitedUserId != userId)
+		{
+			return RedirectToAction(nameof(Redeem), new { code = invite.InviteCode });
 		}
 
 		return View(invite);
