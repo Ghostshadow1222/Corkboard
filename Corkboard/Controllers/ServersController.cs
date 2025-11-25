@@ -41,7 +41,7 @@ public class ServersController : BaseController
 
 	/// <summary>
 	/// Displays detailed information about a specific server.
-	/// GET /Servers/Details/{id}
+	/// GET /Servers/Details/{serverId}
 	/// </summary>
 	/// <param name="serverId">The server ID to display.</param>
 	/// <returns>View with server details, or redirect to Index if not found.</returns>
