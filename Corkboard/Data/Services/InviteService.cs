@@ -141,7 +141,6 @@ public class InviteService : IInviteService
 		};
 
 		_context.ServerMembers.Add(member);
-		invite.CreatedMemberships.Add(member);
 
 		// Update invite usage metadata
 		invite.TimesUsed += 1;
