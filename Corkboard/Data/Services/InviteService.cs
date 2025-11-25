@@ -1,5 +1,6 @@
 ﻿using Corkboard.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace Corkboard.Data.Services;
 
@@ -51,6 +52,13 @@ public interface IInviteService
 	/// <param name="code">The invite code to look up.</param>
 	/// <returns>The invite or <c>null</c> if not found.</returns>
 	public Task<ServerInvite?> GetInviteByCodeAsync(string code);
+
+	/// <summary>
+	/// Generates a unique invite code of the specified length that is not already in use.
+	/// </summary>
+	/// <param name="length">The desired length of the invite code.</param>
+	/// <returns>A unique invite code string.</returns>
+	public Task<string> GenerateUniqueInviteCodeAsync(int length = 8);
 }
 
 /// <summary>
@@ -186,4 +194,28 @@ public class InviteService : IInviteService
 		string normalized = code.Trim().ToUpper();
 		return await _context.ServerInvites.AnyAsync(i => i.InviteCode.ToUpper() == normalized);
 	}
+
+	/// <inheritdoc/>
+	public async Task<string> GenerateUniqueInviteCodeAsync(int length = 8)
+    {
+		const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		const int maxRetries = 10;
+		for (int attempt = 0; attempt < maxRetries; attempt++)
+		{
+			char[] result = new char[length];
+			for (int i = 0; i < length; i++)
+			{
+				int idx = RandomNumberGenerator.GetInt32(chars.Length);
+				result[i] = chars[idx];
+			}
+
+			string code = new string(result);
+			if (!await InviteCodeInUseAsync(code))
+			{
+				return code;
+			}
+			// else, try again
+		}
+		throw new System.Exception($"Failed to generate a unique invite code after {maxRetries} retries.");
+    }
 }

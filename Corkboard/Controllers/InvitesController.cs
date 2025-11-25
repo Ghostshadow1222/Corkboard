@@ -142,16 +142,8 @@ public class InvitesController : BaseController
 		// END validation
 
 		// Create the invite
-
-		// Need to generate a unique code for the invite
-		string inviteCode = GenerateInviteCode(8);
-
-		// Ensure code is unique
-		while (await _inviteService.InviteCodeInUseAsync(inviteCode))
-		{
-			inviteCode = GenerateInviteCode(8);
-		}
-
+		string inviteCode = await _inviteService.GenerateUniqueInviteCodeAsync(8);
+	
 		// If user did not opt-in to an expiration, ensure ExpiresAt is null
 		DateTime? expiresAt = invite.Expires ? invite.ExpiresAt : null;
 
@@ -274,23 +266,6 @@ public class InvitesController : BaseController
 		}
 
 		return RedirectToAction(nameof(ServersController.Details), "Servers", new { id = invite.ServerId });
-	}
-
-	/// <summary>
-	/// Generates a random alphanumeric invite code.
-	/// </summary>
-	/// <param name="length">The length of the code to generate. Defaults to 8.</param>
-	/// <returns>A randomly generated invite code string.</returns>
-	private static string GenerateInviteCode(int length = 8)
-	{
-		const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		char[] result = new char[length];
-		for (int i = 0; i < length; i++)
-		{
-			int idx = RandomNumberGenerator.GetInt32(chars.Length);
-			result[i] = chars[idx];
-		}
-		return new string(result);
 	}
 
 	/// <summary>
