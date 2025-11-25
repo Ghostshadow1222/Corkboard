@@ -92,6 +92,19 @@
                     expiresPicker.querySelector('input').value = ''; // Clear the date input when hiding
                 }
             });
+
+            var oneTimeUseCheckbox = document.getElementById('OneTimeUse');
+            var usernameInput = document.getElementById('Username');
+
+            // Disable oneTimeUse if a username is specified
+            usernameInput.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    oneTimeUseCheckbox.checked = true;
+                    oneTimeUseCheckbox.disabled = true;
+                } else {
+                    oneTimeUseCheckbox.disabled = false;
+                }
+            });
         });
     </script>
 }

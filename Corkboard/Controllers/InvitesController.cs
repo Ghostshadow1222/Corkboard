@@ -40,11 +40,7 @@ public class InvitesController : BaseController
 	[HttpGet]
 	public async Task<IActionResult> Index()
 	{
-		string? userId = CurrentUserId;
-		if (userId == null)
-		{
-			return Challenge();
-		}
+		string userId = CurrentUserId!;
 
 		System.Collections.Generic.List<ServerInvite> created = await _inviteService.GetInvitesCreatedByUserAsync(userId);
 		
@@ -56,13 +52,11 @@ public class InvitesController : BaseController
 	/// GET /Invites/Create
 	/// </summary>
 	/// <returns>View with invite creation form, or redirect if user has no servers.</returns>
-	public async Task<IActionResult> Create()
+	[HttpGet("Invites/Create/{serverId}")]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> Create(int serverId)
 	{
-		string? userId = CurrentUserId;
-		if (userId == null)
-		{
-			return Challenge();
-		}
+		string userId = CurrentUserId!;
 
 		await PopulateServersViewBag(userId);
 
@@ -85,11 +79,7 @@ public class InvitesController : BaseController
 	[Authorize(Policy = "ServerModerator")]
 	public async Task<IActionResult> Create(int serverId, ServerInviteViewModel invite)
 	{
-		string? userId = CurrentUserId;
-		if (userId == null)
-		{
-			return Unauthorized();
-		}
+		string userId = CurrentUserId!;
 
 		// Validate invite creation authorization and business rules via service
 		InviteValidationResult validation = await _inviteService.ValidateCreateInviteAsync(userId, invite);
@@ -169,11 +159,7 @@ public class InvitesController : BaseController
 	[HttpGet("/Invites/Redeem/{code}")]
 	public async Task<IActionResult> Redeem(string code)
 	{
-		string? userId = CurrentUserId;
-		if (userId == null)
-		{
-			return Unauthorized();
-		}
+		string userId = CurrentUserId!;
 
 		ServerInvite? invite = await _inviteService.GetInviteByCodeAsync(code);
 
@@ -201,11 +187,7 @@ public class InvitesController : BaseController
 	[ActionName("Redeem")]
 	public async Task<IActionResult> RedeemConfirmed(string code)
 	{
-		string? userId = CurrentUserId;
-		if (userId == null)
-		{
-			return Unauthorized();
-		}
+		string userId = CurrentUserId!;
 
 		ServerInvite? invite = await _inviteService.GetInviteByCodeAsync(code);
 

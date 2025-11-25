@@ -276,7 +276,13 @@ public class InviteService : IInviteService
 				result.FieldErrors["Username"] = "You cannot invite yourself.";
 				return result;
 			}
-			result.InvitedUserId = invitedUser.Id;
+			if (invitedUser != null && invite.OneTimeUse == false)
+			{
+				result.IsValid = false;
+				result.FieldErrors["OneTimeUse"] = "Invites for specific users cannot be multi-use.";
+				return result;
+			}
+			result.InvitedUserId = invitedUser?.Id;
 		}
 
 		// Validate expiry
