@@ -100,7 +100,7 @@ public class InvitesController : Controller
 
 		// Ensure current user is authorized to create invites for this server
 		bool isOwner = server.OwnerId == userId;
-		bool isModerator = await _serverService.IsUserModeratorAsync(server.Id, userId);
+		bool isModerator = await _serverService.IsUserModeratorOfServerAsync(server.Id, userId);
 
 		if (!isOwner && !isModerator)
 		{

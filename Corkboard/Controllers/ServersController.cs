@@ -46,15 +46,26 @@ public class ServersController : Controller
 	/// Displays detailed information about a specific server.
 	/// GET /Servers/Details/{id}
 	/// </summary>
-	/// <param name="id">The server ID to display.</param>
+	/// <param name="serverId">The server ID to display.</param>
 	/// <returns>View with server details, or redirect to Index if not found.</returns>
 	[HttpGet("Servers/Details/{id}")]
-	public async Task<IActionResult> Details(int id)
+	public async Task<IActionResult> Details(int serverId)
 	{
-		Server? server = await _serverService.GetServerAsync(id);
+		string? userId = _userManager.GetUserId(User);
+		if (userId == null)
+		{
+			return Challenge();
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
 		{
 			return RedirectToAction(nameof(Index));
+		}
+
+		if (!await _serverService.IsUserMemberOfServerAsync(serverId, userId))
+		{
+			return Unauthorized();
 		}
 		return View(server);
 	}
