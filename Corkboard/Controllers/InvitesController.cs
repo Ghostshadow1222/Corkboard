@@ -82,9 +82,9 @@ public class InvitesController : Controller
 	/// </summary>
 	/// <param name="invite">The invite view model with creation details.</param>
 	/// <returns>Redirect to invite details on success, or view with errors on failure.</returns>
-	[HttpPost]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Create(ServerInviteViewModel invite)
+	[HttpPost("Invites/Create/{serverId}")]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> Create(int serverId, ServerInviteViewModel invite)
 	{
 		string? userId = _userManager.GetUserId(User);
 		if (userId == null)
@@ -98,16 +98,8 @@ public class InvitesController : Controller
 			return NotFound();
 		}
 
-		// Ensure current user is authorized to create invites for this server
-		bool isOwner = server.OwnerId == userId;
-		bool isModerator = await _serverService.IsUserModeratorOfServerAsync(server.Id, userId);
-
-		if (!isOwner && !isModerator)
-		{
-			return Unauthorized();
-		}
-
-		if (server.PrivacyLevel == PrivacyLevel.OwnerInvitePrivate && !isOwner)
+		// Check for owner-only privacy level
+		if (server.PrivacyLevel == PrivacyLevel.OwnerInvitePrivate && server.OwnerId != userId)
 		{
 			return Unauthorized();
 		}

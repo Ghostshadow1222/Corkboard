@@ -46,21 +46,16 @@ public class ServersController : Controller
 	/// </summary>
 	/// <param name="serverId">The server ID to display.</param>
 	/// <returns>View with server details, or redirect to Index if not found.</returns>
-	[HttpGet("Servers/Details/{id}")]
+	[HttpGet("Servers/Details/{serverId}")]
+	[Authorize(Policy = "ServerMember")]
 	public async Task<IActionResult> Details(int serverId)
 	{
-		string userId = _userManager.GetUserId(User)!;
-
 		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
 		{
 			return RedirectToAction(nameof(Index));
 		}
 
-		if (!await _serverService.IsUserMemberOfServerAsync(serverId, userId))
-		{
-			return Unauthorized();
-		}
 		return View(server);
 	}
 
