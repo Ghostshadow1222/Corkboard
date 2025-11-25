@@ -9,12 +9,12 @@ public class MessageDto
 	/// <summary>
 	/// The textual content of the message.
 	/// </summary>
-	public string Text { get; set; } = string.Empty;
+	public string Text { get; set; } = null!;
 
 	/// <summary>
 	/// The sender's username.
 	/// </summary>
-	public string Sender { get; set; } = string.Empty;
+	public string Sender { get; set; } = null!;
 
 	/// <summary>
 	/// Optional URL to the sender's profile image.

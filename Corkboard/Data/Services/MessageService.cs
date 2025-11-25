@@ -42,7 +42,7 @@ public class MessageService : IMessageService
 			.Select(m => new MessageDto
 			{
 				Text = m.Content,
-				Sender = m.Sender.UserName,
+				Sender = m.Sender.UserName ?? "Unknown",
 				ImageUrl = m.Sender.ProfilePictureUrl,
 				Timestamp = m.CreatedAt
 			})
