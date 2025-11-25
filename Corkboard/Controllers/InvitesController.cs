@@ -209,7 +209,7 @@ public class InvitesController : Controller
 
 		ServerInvite? invite = await _inviteService.GetInviteByCodeAsync(code);
 
-		if (invite == null || invite.IsUsed || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
+		if (invite == null || (invite.OneTimeUse && invite.IsUsed) || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
 		{
 			return NotFound();
 		}
