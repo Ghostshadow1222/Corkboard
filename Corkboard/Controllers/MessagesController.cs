@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Corkboard.Data.Services;
 using Corkboard.Models;
+using Corkboard.Data.DTOs;
 
 namespace Corkboard.Controllers;
 
@@ -33,20 +34,6 @@ public class MessagesController : Controller
 	}
 
 	/// <summary>
-	/// Displays the chat interface with an optional channel identifier.
-	/// GET /chat/{id?}
-	/// </summary>
-	/// <param name="id">Optional channel ID to load.</param>
-	/// <returns>View with chat interface.</returns>
-	[HttpGet("chat/{id?}")]
-	public IActionResult Index(string? id = null)
-	{
-		// Expose the optional id to the view for later use.
-		ViewData["ChatId"] = id;
-		return View();
-	}
-
-	/// <summary>
 	/// Returns all messages for a specific channel as JSON for API consumption.
 	/// GET /api/messages/{channelId}
 	/// </summary>
@@ -57,7 +44,7 @@ public class MessagesController : Controller
 	{
 		string userId = _userManager.GetUserId(User)!;
 
-		var channel = await _channelService.GetChannelAsync(channelId);
+		Channel? channel = await _channelService.GetChannelAsync(channelId);
 		if (channel == null)
 		{
 			return NotFound();
@@ -68,7 +55,8 @@ public class MessagesController : Controller
 			return Unauthorized();
 		}
 
-		var messages = await _messageService.GetMessagesForChannelAsync(channelId);
+		List<MessageDto> messages = await _messageService.GetMessagesForChannelAsync(channelId);
+
 		return Json(messages);
 	}
 }
