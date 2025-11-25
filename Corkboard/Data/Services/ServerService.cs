@@ -36,7 +36,7 @@ public interface IServerService
 	/// Adds the specified user as a member of the given server if they are not already a member.
 	/// </summary>
 	/// <remarks>
-	/// This method skips the usual invitiation process and directly adds the user as a member.
+	/// This method skips the usual invitation process and directly adds the user as a member.
 	/// It is the caller's responsibility to ensure that the user should be allowed to join.
 	/// </remarks>
 	/// <param name="serverId">Server id to join.</param>
