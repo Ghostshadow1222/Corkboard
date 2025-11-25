@@ -88,9 +88,9 @@ public class ServerInvite : IValidatableObject
 
 	public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 	{
-		if (InvitedUserId != null && OneTimeUse)
+		if (InvitedUserId != null && !OneTimeUse)
 		{
-			yield return new ValidationResult("Invites for specific users cannot be one-time use.", new[] { nameof(InvitedUserId), nameof(OneTimeUse) });
+			yield return new ValidationResult("Invites for specific users cannot be multi-use.", new[] { nameof(InvitedUserId), nameof(OneTimeUse) });
 		}
 
 		if (InvitedUserId != null && InvitedUserId == CreatedById)

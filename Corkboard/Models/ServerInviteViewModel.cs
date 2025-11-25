@@ -69,10 +69,10 @@ public class ServerInviteViewModel : IValidatableObject
 			}
 		}
 
-		// Invites for specific users cannot be one-time use (they can use it as many times as needed)
-		if (!string.IsNullOrEmpty(Username) && OneTimeUse)
+		// Invites for specific users cannot be multi-use
+		if (!string.IsNullOrEmpty(Username) && !OneTimeUse)
 		{
-			yield return new ValidationResult("Invites for specific users cannot be one-time use.", new[] { nameof(Username), nameof(OneTimeUse) });
+			yield return new ValidationResult("Invites for specific users cannot be multi-use.", new[] { nameof(Username), nameof(OneTimeUse) });
 		}
 	}
 }
