@@ -1,5 +1,10 @@
 using Corkboard.Data;
 using Corkboard.Models;
+using Corkboard.Data.Services;
+using Corkboard.Authorization.Requirements;
+using Corkboard.Authorization.Handlers;
+using Corkboard.Authorization.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +17,33 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<UserAccount>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Register domain services (scoped to match DbContext)
+builder.Services.AddScoped<IServerService, ServerService>();
+builder.Services.AddScoped<IChannelService, ChannelService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IInviteService, InviteService>();
+
+// Register HTTP context accessor for authorization handlers
+builder.Services.AddHttpContextAccessor();
+
+// Register authorization helpers
+builder.Services.AddScoped<RouteDataHelper>();
+
+// Register authorization handlers
+builder.Services.AddScoped<IAuthorizationHandler, ServerMemberHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ServerModeratorHandler>();
+
+// Configure authorization policies
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("ServerMember", policy =>
+		policy.Requirements.Add(new ServerMemberRequirement()));
+	
+	options.AddPolicy("ServerModerator", policy =>
+		policy.Requirements.Add(new ServerModeratorRequirement()));
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -31,6 +63,7 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Corkboard.Models;
 
+/// <summary>
+/// Represents a user account with extended profile information beyond the base Identity user.
+/// </summary>
 public class UserAccount : IdentityUser
 {
     /// <summary>
