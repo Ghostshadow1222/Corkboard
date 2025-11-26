@@ -61,8 +61,20 @@ public interface IServerService
     /// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the user is a
     /// member of the specified server; otherwise, <see langword="false"/>.</returns>
 	Task<bool> IsUserMemberOfServerAsync(int serverId, string userId);
+
+	/// <summary>
+	/// Retrieves all channels for the specified server.
+	/// </summary>
+	/// <param name="serverId">Server id.</param>
+	/// <returns>List of channels.</returns>
 	Task<IEnumerable<Channel>> GetChannelsForServerAsync(int serverId);
 
+	/// <summary>
+	/// Retrieves a channel by its identifier.
+	/// </summary>
+	/// <param name="channelId">Channel id.</param>
+	/// <returns>The channel or <c>null</c> if not found.</returns>
+	Task<Channel?> GetChannelByIdAsync(int channelId);
 }
 
 /// <summary>
@@ -179,4 +191,11 @@ public class ServerService : IServerService
 			.Where(c => c.ServerId == serverId)
 			.ToListAsync();
     }
+
+	/// <inheritdoc/>
+	public async Task<Channel?> GetChannelByIdAsync(int channelId)
+	{
+		return await _context.Channels
+			.SingleOrDefaultAsync(c => c.Id == channelId);
+	}
 }
