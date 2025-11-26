@@ -61,6 +61,8 @@ public interface IServerService
     /// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the user is a
     /// member of the specified server; otherwise, <see langword="false"/>.</returns>
 	Task<bool> IsUserMemberOfServerAsync(int serverId, string userId);
+	Task<IEnumerable<Channel>> GetChannelsForServerAsync(int serverId);
+
 }
 
 /// <summary>
@@ -169,4 +171,12 @@ public class ServerService : IServerService
 		return await _context.ServerMembers.AnyAsync(sm =>
 			sm.ServerId == serverId && sm.UserId == userId);
 	}
+
+	/// <inheritdoc/>
+	public async Task<IEnumerable<Channel>> GetChannelsForServerAsync(int serverId)
+    {
+        return await _context.Channels
+			.Where(c => c.ServerId == serverId)
+			.ToListAsync();
+    }
 }

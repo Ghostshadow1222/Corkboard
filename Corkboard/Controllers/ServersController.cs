@@ -40,22 +40,44 @@ public class ServersController : BaseController
 	}
 
 	/// <summary>
-	/// Displays detailed information about a specific server.
-	/// GET /Servers/Details/{serverId}
+	/// Displays the main chat interface for a specific server and channel.
+	/// GET /Servers/{serverId}/Channels/{channelId}
 	/// </summary>
-	/// <param name="serverId">The server ID to display.</param>
-	/// <returns>View with server details, or redirect to Index if not found.</returns>
-	[HttpGet("Servers/Details/{serverId}")]
+	/// <param name="serverId">The server ID</param>
+	/// <param name="channelId">The channel ID within the server.</param>
+	/// <returns>View with chat interface for the specified server and channel.</returns>
+	[HttpGet("Servers/{serverId}/Channels/{channelId?}")]
 	[Authorize(Policy = "ServerMember")]
-	public async Task<IActionResult> Details(int serverId)
+	public async Task<IActionResult> Channels(int serverId, int? channelId)
 	{
+		string userId = CurrentUserId!;
+
 		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
 		{
-			return RedirectToAction(nameof(Index));
+			return NotFound();
 		}
 
-		return View(server);
+		List<ChannelViewModel> channels = 
+			(await _serverService.GetChannelsForServerAsync(serverId))
+			.Select(c => new ChannelViewModel { Id = c.Id, Name = c.Name })
+			.ToList();
+
+		int SelectedChannelId = channelId ?? channels.FirstOrDefault()?.Id ?? _serverService
+			.GetChannelsForServerAsync(serverId)
+			.Result
+			.First()
+			.Id;
+
+		ServerChannelsViewModel model = new ServerChannelsViewModel
+		{
+			ServerId = server.Id,
+			ServerName = server.Name,
+			SelectedChannelId = SelectedChannelId,
+			Channels = channels
+		};
+		
+		return View(model);
 	}
 
 	/// <summary>
@@ -99,7 +121,7 @@ public class ServersController : BaseController
 		// Create the server
 		server = await _serverService.CreateServerAsync(server, userId);
 
-		return RedirectToAction(nameof(Details), new { id = server.Id });
+		return RedirectToAction(nameof(Channels), new { id = server.Id });
 	}
 
 	/// <summary>
@@ -145,6 +167,6 @@ public class ServersController : BaseController
 
 		await _serverService.JoinServerAsync(serverId, userId);
 
-        return RedirectToAction(nameof(Details), new { serverId = serverId });
+        return RedirectToAction(nameof(Channels), new { serverId = serverId });
     }
 }
