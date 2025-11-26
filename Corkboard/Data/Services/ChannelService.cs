@@ -21,6 +21,13 @@ public interface IChannelService
 	/// <param name="id">Channel id.</param>
 	/// <returns>The channel or <c>null</c> if it does not exist.</returns>
 	Task<Channel?> GetChannelAsync(int id);
+
+	/// <summary>
+	/// Creates a new channel in a server.
+	/// </summary>
+	/// <param name="channel">Channel to create.</param>
+	/// <returns>The created channel.</returns>
+	Task<Channel> CreateChannelAsync(Channel channel);
 }
 
 /// <summary>
@@ -52,5 +59,14 @@ public class ChannelService : IChannelService
 	public async Task<Channel?> GetChannelAsync(int id)
 	{
 		return await _context.Channels.FindAsync(id);
+	}
+
+	/// <inheritdoc/>
+	public async Task<Channel> CreateChannelAsync(Channel channel)
+	{
+		channel.CreatedAt = DateTime.UtcNow;
+		_context.Channels.Add(channel);
+		await _context.SaveChangesAsync();
+		return channel;
 	}
 }
