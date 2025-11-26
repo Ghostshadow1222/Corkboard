@@ -14,23 +14,24 @@ namespace Corkboard.Controllers;
 [Authorize]
 public class ServersController : BaseController
 {
-	private readonly IServerService _serverService;
     private readonly IMessageService _messageService;
 	private readonly IInviteService _inviteService;
+	private readonly IChannelService _channelService;
 
 	/// <summary>
 	/// Creates a new instance of <see cref="ServersController"/>.
 	/// </summary>
-	/// <param name="serverService">Server service for data operations.</param>
 	/// <param name="messageService">Message service for chat operations.</param>
 	/// <param name="inviteService">Invite service for data operations.</param>
+	/// <param name="channelService">Channel service for channel operations.</param>
 	/// <param name="userManager">User manager for identity operations.</param>
-	public ServersController(IServerService serverService, IMessageService messageService, IInviteService inviteService, UserManager<UserAccount> userManager)
-		: base(userManager)
+	/// <param name="serverService">Server service for server operations.</param>
+	public ServersController(IMessageService messageService, IInviteService inviteService, IChannelService channelService, UserManager<UserAccount> userManager, IServerService serverService)
+		: base(userManager, serverService)
 	{
-		_serverService = serverService;
         _messageService = messageService;
 		_inviteService = inviteService;
+		_channelService = channelService;
 	}
 
 	/// <summary>
@@ -67,11 +68,11 @@ public class ServersController : BaseController
 		}
 
 		List<ChannelViewModel> channels = 
-			(await _serverService.GetChannelsForServerAsync(serverId))
+			(await _channelService.GetChannelsForServerAsync(serverId))
 			.Select(c => new ChannelViewModel { Id = c.Id, Name = c.Name })
 			.ToList();
 
-		int SelectedChannelId = channelId ?? channels.FirstOrDefault()?.Id ?? _serverService
+		int SelectedChannelId = channelId ?? channels.FirstOrDefault()?.Id ?? _channelService
 			.GetChannelsForServerAsync(serverId)
 			.Result
 			.First()
@@ -93,6 +94,11 @@ public class ServersController : BaseController
 			UserServers = userServers,
 			Messages = messages
 		};
+
+		ViewBag.UserRole = await GetUserRoleInServerAsync(serverId);
+		ViewBag.IsModerator = await IsUserModeratorOrOwnerAsync(serverId);
+		ViewBag.IsOwner = await IsUserOwnerAsync(serverId);
+		ViewBag.AllowModeratorInvites = server.PrivacyLevel == PrivacyLevel.ModeratorInvitePrivate;
 		
 		return View(model);
 	}
@@ -138,7 +144,7 @@ public class ServersController : BaseController
 		// Create the server
 		server = await _serverService.CreateServerAsync(server, userId);
 
-		return RedirectToAction(nameof(Channels), new { id = server.Id });
+		return RedirectToAction(nameof(Channels), new { serverId = server.Id });
 	}
 
 	/// <summary>
@@ -340,5 +346,63 @@ public class ServersController : BaseController
 		ViewBag.ServerId = serverId;
 
 		return View(invite);
+	}
+
+	/// <summary>
+	/// Creates a new channel in a server (API endpoint).
+	/// POST /Servers/{serverId}/Channels/Create
+	/// </summary>
+	/// <param name="serverId">The server ID where the channel will be created.</param>
+	/// <param name="request">The channel creation request containing channel details.</param>
+	/// <returns>JSON response with created channel details or error.</returns>
+	[HttpPost("Servers/{serverId}/Channels/Create")]
+	[Authorize(Policy = "ServerModerator")]
+	[IgnoreAntiforgeryToken]
+	public async Task<IActionResult> CreateChannel(int serverId, [FromBody] CreateChannelRequest request)
+	{
+		if (!ModelState.IsValid)
+		{
+			return BadRequest(ModelState);
+		}
+
+		if (serverId != request.ServerId)
+		{
+			return BadRequest("Server ID mismatch");
+		}
+
+		// Verify server exists
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		Channel channel = new Channel
+		{
+			Name = request.Name,
+			ServerId = request.ServerId
+		};
+
+		channel = await _channelService.CreateChannelAsync(channel);
+
+		return Ok(new { id = channel.Id, name = channel.Name, serverId = channel.ServerId });
+	}
+
+	/// <summary>
+	/// Request model for creating a channel.
+	/// </summary>
+	public class CreateChannelRequest
+	{
+		/// <summary>
+		/// Server ID where the channel will be created.
+		/// </summary>
+		public int ServerId { get; set; }
+
+		/// <summary>
+		/// Name of the channel.
+		/// </summary>
+		[System.ComponentModel.DataAnnotations.Required]
+		[System.ComponentModel.DataAnnotations.MaxLength(100)]
+		public string Name { get; set; } = string.Empty;
 	}
 }

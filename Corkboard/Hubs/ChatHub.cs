@@ -9,11 +9,13 @@ public class ChatHub : Hub
 {
     private readonly IMessageService _messageService;
     private readonly IServerService _serverService;
+    private readonly IChannelService _channelService;
 
-    public ChatHub(IMessageService messageService, IServerService serverService)
+    public ChatHub(IMessageService messageService, IServerService serverService, IChannelService channelService)
     {
         _messageService = messageService;
         _serverService = serverService;
+        _channelService = channelService;
     }
 
     public async Task JoinChannel(int channelId)
@@ -25,7 +27,7 @@ public class ChatHub : Hub
         }
 
         // Authorize user membership in channel
-        Channel? channel = await _serverService.GetChannelByIdAsync(channelId);
+        Channel? channel = await _channelService.GetChannelAsync(channelId);
         if (channel == null)
         {
             throw new HubException("Channel not found.");

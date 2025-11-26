@@ -66,13 +66,19 @@
   <nav class="sb-channels-sidebar" aria-label="Channels">
     <div class="sb-server-header">
       <h3 class="sb-server-name">@Model.ServerName</h3>
-      <a href="@Url.Action("CreateInvite", "Servers", new { serverId = Model.ServerId })" class="sb-invite-btn">Invite</a>
+      @if (ViewBag.UserRole == RoleType.Owner || (ViewBag.UserRole == RoleType.Moderator && ViewBag.AllowModeratorInvites))
+      {
+        <a href="@Url.Action("CreateInvite", "Servers", new { serverId = Model.ServerId })" class="sb-invite-btn">Invite</a>
+      }
     </div>
     
     <div class="sb-section">
       <div class="sb-section-header">
         <span class="sb-section-title">Channels</span>
-        <button type="button" class="sb-add-btn" onclick="showCreateChannelModal()" title="Create Channel">+</button>
+        @if (ViewBag.IsOwner || ViewBag.IsModerator)
+        {
+          <button type="button" class="sb-add-btn" onclick="showCreateChannelModal()" title="Create Channel">+</button>
+        }
       </div>
       <ul class="sb-channel-list">
         @foreach (var ch in Model.Channels)
@@ -99,7 +105,7 @@
       <h4 class="sb-modal-title">Create Channel</h4>
       <button type="button" class="sb-modal-close" onclick="hideCreateChannelModal()">&times;</button>
     </div>
-    <form id="createChannelForm" method="post" action="/Channels/Create">
+    <form id="createChannelForm" method="post" action="/Servers/@Model.ServerId/Channels/Create">
       <input type="hidden" name="serverId" value="@Model.ServerId" />
       <div class="sb-form-group">
         <label class="sb-form-label" for="channelName">Channel Name</label>
@@ -127,7 +133,7 @@ document.getElementById('createChannelForm').addEventListener('submit', async fu
   const data = { serverId: @Model.ServerId, name: formData.get('name') };
   
   try {
-    const response = await fetch('/Channels/Create/' + @Model.ServerId, {
+    const response = await fetch('/Servers/' + @Model.ServerId + '/Channels/Create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)

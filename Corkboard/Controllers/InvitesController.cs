@@ -21,8 +21,9 @@ public class InvitesController : BaseController
 	/// </summary>
 	/// <param name="inviteService">Invite service for data operations.</param>
 	/// <param name="userManager">User manager for identity operations.</param>
-	public InvitesController(IInviteService inviteService, UserManager<UserAccount> userManager)
-		: base(userManager)
+	/// <param name="serverService">Server service for data operations.</param>
+	public InvitesController(IInviteService inviteService, UserManager<UserAccount> userManager, IServerService serverService)
+		: base(userManager, serverService)
 	{
 		_inviteService = inviteService;
 	}

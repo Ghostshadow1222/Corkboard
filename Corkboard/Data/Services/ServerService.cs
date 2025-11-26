@@ -63,18 +63,12 @@ public interface IServerService
 	Task<bool> IsUserMemberOfServerAsync(int serverId, string userId);
 
 	/// <summary>
-	/// Retrieves all channels for the specified server.
+	/// Retrieves the server member record for the specified user in the given server.
 	/// </summary>
-	/// <param name="serverId">Server id.</param>
-	/// <returns>List of channels.</returns>
-	Task<IEnumerable<Channel>> GetChannelsForServerAsync(int serverId);
-
-	/// <summary>
-	/// Retrieves a channel by its identifier.
-	/// </summary>
-	/// <param name="channelId">Channel id.</param>
-	/// <returns>The channel or <c>null</c> if not found.</returns>
-	Task<Channel?> GetChannelByIdAsync(int channelId);
+	/// <param name="serverId">The unique identifier of the server.</param>
+	/// <param name="userId">The unique identifier of the user.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="ServerMember"/> if found; otherwise, <see langword="null"/>.</returns>
+	Task<ServerMember?> GetServerMemberAsync(int serverId, string userId);
 }
 
 /// <summary>
@@ -185,17 +179,9 @@ public class ServerService : IServerService
 	}
 
 	/// <inheritdoc/>
-	public async Task<IEnumerable<Channel>> GetChannelsForServerAsync(int serverId)
-    {
-        return await _context.Channels
-			.Where(c => c.ServerId == serverId)
-			.ToListAsync();
-    }
-
-	/// <inheritdoc/>
-	public async Task<Channel?> GetChannelByIdAsync(int channelId)
+	public async Task<ServerMember?> GetServerMemberAsync(int serverId, string userId)
 	{
-		return await _context.Channels
-			.SingleOrDefaultAsync(c => c.Id == channelId);
+		return await _context.ServerMembers
+			.FirstOrDefaultAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
 	}
 }
