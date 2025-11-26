@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Corkboard.Data.Services;
@@ -10,6 +11,7 @@ namespace Corkboard.Controllers;
 /// Controller for managing and displaying channels within a server.
 /// </summary>
 [Authorize]
+[Route("[controller]")]
 public class ChannelsController : BaseController
 {
 	private readonly IChannelService _channelService;
@@ -26,38 +28,52 @@ public class ChannelsController : BaseController
 	}
 
 	/// <summary>
-	/// Displays a list of all channels in a specific server.
-	/// GET /Channels/Index/{serverId}
+	/// Creates a new channel in a server (API endpoint).
+	/// POST /Channels/Create/{serverId}
 	/// </summary>
-	/// <param name="serverId">The server ID to retrieve channels for.</param>
-	/// <returns>View with list of channels.</returns>
-	[HttpGet("Index/{serverId}")]
-	[Authorize(Policy = "ServerMember")]
-	public async Task<IActionResult> Index(int serverId)
+	[HttpPost("Create/{serverId}")]
+	[Authorize(Policy = "ServerModerator")]
+	[IgnoreAntiforgeryToken]
+	public async Task<IActionResult> Create(int serverId, [FromBody] CreateChannelRequest request)
 	{
-		ViewBag.ServerId = serverId;
-		List<Channel> channels = await _channelService.GetChannelsForServerAsync(serverId);
+		if (!ModelState.IsValid)
+		{
+			return BadRequest(ModelState);
+		}
 
-		return View(channels);
+		if (serverId != request.ServerId)
+		{
+			return BadRequest();
+		}
+
+		string userId = CurrentUserId!;
+
+		Channel channel = new Channel
+		{
+			Name = request.Name,
+			ServerId = request.ServerId
+		};
+
+		channel = await _channelService.CreateChannelAsync(channel);
+
+		return Ok(new { id = channel.Id, name = channel.Name, serverId = channel.ServerId });
 	}
 
 	/// <summary>
-	/// Opens a specific channel for viewing and chatting.
-	/// GET /Channels/Open/{id}
+	/// Request model for creating a channel.
 	/// </summary>
-	/// <param name="id">The channel ID to open.</param>
-	/// <returns>View with channel details, or NotFound if channel doesn't exist.</returns>
-	[HttpGet("Open/{serverId}/{id}")]
-	[Authorize(Policy = "ServerMember")]
-	public async Task<IActionResult> Open(int serverId, int id)
+	public class CreateChannelRequest
 	{
-		Channel? channel = await _channelService.GetChannelAsync(id);
-		if (channel == null)
-		{
-			return NotFound();
-		}
+		/// <summary>
+		/// Server ID where the channel will be created.
+		/// </summary>
+		public int ServerId { get; set; }
 
-		ViewBag.ServerId = channel.ServerId;
-		return View(channel);
+		/// <summary>
+		/// Name of the channel.
+		/// </summary>
+		[Required]
+		[MaxLength(100)]
+		public string Name { get; set; } = string.Empty;
 	}
 }
