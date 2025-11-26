@@ -1,5 +1,6 @@
 using Corkboard.Data;
 using Corkboard.Models;
+using Corkboard.Hubs;
 using Corkboard.Data.Services;
 using Corkboard.Authorization.Requirements;
 using Corkboard.Authorization.Handlers;
@@ -17,6 +18,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<UserAccount>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddSignalR();
 
 // Register domain services (scoped to match DbContext)
 builder.Services.AddScoped<IServerService, ServerService>();
@@ -75,5 +78,7 @@ app.MapControllerRoute(
 
 app.MapRazorPages()
    .WithStaticAssets();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();
