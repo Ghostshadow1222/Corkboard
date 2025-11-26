@@ -1,0 +1,21 @@
+@using Corkboard.Data.DTOs;
+@model ChatPartialModel
+
+<div id="chat-container"
+     data-server-id="@Model.ServerId"
+     data-channel-id="@Model.ChannelId">
+  <div id="messages" class="messages">
+    @foreach (MessageDto message in Model.Messages)
+    {
+      <p><strong>@message.SenderUsername</strong>: @message.Text</p>
+    }
+  </div>
+
+  <form id="message-form" onsubmit="return false;">
+    <input id="message-input" type="text" />
+    <button id="send-btn" type="button">Send</button>
+  </form>
+</div>
+
+<script src="~/js/signalr/dist/browser/signalr.js" asp-append-version="true"></script>
+<script src="~/js/chat.js" asp-append-version="true"></script>

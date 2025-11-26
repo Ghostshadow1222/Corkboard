@@ -6,18 +6,23 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Id</th>
             <th>Name</th>
             <th>Member Count</th>
+            <th>Last Message</th>
+            <td></td>
         </tr>
     </thead>
     <tbody>
         @foreach (var server in Model)
         {
             <tr>
-                <td><a asp-action="Details" asp-route-id="@server.Id">@server.Id</a></td>
                 <td>@server.Name</td>
                 <td>@server.MemberCount</td>
+                <td>@server.LastMessageTimeStamp?.ToLocalTime()</td>
+                @* Link to view the full details of this invite *@
+                <td>
+                    <a asp-action="Channels" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                </td>
             </tr>
         }
     </tbody>
