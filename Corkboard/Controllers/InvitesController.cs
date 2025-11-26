@@ -4,161 +4,27 @@ using Corkboard.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Cryptography;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Corkboard.Controllers;
 
 /// <summary>
-/// Controller for managing server invites, including creation, viewing, and redemption.
-/// Requires authentication for all actions.
+/// Controller for redeeming server invites.
+/// Invite creation and management are handled by ServersController.
 /// </summary>
 [Authorize]
 public class InvitesController : BaseController
 {
 	private readonly IInviteService _inviteService;
-	private readonly IServerService _serverService;
 
 	/// <summary>
 	/// Creates a new instance of <see cref="InvitesController"/>.
 	/// </summary>
 	/// <param name="inviteService">Invite service for data operations.</param>
-	/// <param name="serverService">Server service for authorization checks.</param>
 	/// <param name="userManager">User manager for identity operations.</param>
-	public InvitesController(IInviteService inviteService, IServerService serverService, UserManager<UserAccount> userManager)
+	public InvitesController(IInviteService inviteService, UserManager<UserAccount> userManager)
 		: base(userManager)
 	{
 		_inviteService = inviteService;
-		_serverService = serverService;
-	}
-
-	/// <summary>
-	/// Displays all invites created by the current user.
-	/// GET /Invites/Index
-	/// </summary>
-	/// <returns>View with list of invites created by the user.</returns>
-	[HttpGet]
-	public async Task<IActionResult> Index()
-	{
-		string userId = CurrentUserId!;
-
-		System.Collections.Generic.List<ServerInvite> created = await _inviteService.GetInvitesCreatedByUserAsync(userId);
-		
-		return View(created);
-	}
-
-	/// <summary>
-	/// Displays the form for creating a new server invite.
-	/// GET /Invites/Create
-	/// </summary>
-	/// <returns>View with invite creation form, or redirect if user has no servers.</returns>
-	[HttpGet("Invites/Create/{serverId}")]
-	[Authorize(Policy = "ServerModerator")]
-	public async Task<IActionResult> Create(int serverId)
-	{
-		string userId = CurrentUserId!;
-
-		await PopulateServersViewBag(userId);
-
-		if (ViewBag.Servers == null || ((SelectList)ViewBag.Servers).Count() == 0)
-		{
-			TempData["ErrorMessage"] = "You need to be a member of a server before creating an invite. Create one here.";
-			return RedirectToAction(nameof(ServersController.Create), "Servers");
-		}
-
-		return View(new ServerInviteViewModel());
-	}
-
-	/// <summary>
-	/// Handles the submission of a new server invite, validating authorization and creating the invite.
-	/// POST /Invites/Create
-	/// </summary>
-	/// <param name="invite">The invite view model with creation details.</param>
-	/// <returns>Redirect to invite details on success, or view with errors on failure.</returns>
-	[HttpPost("Invites/Create/{serverId}")]
-	[Authorize(Policy = "ServerModerator")]
-	public async Task<IActionResult> Create(int serverId, ServerInviteViewModel invite)
-	{
-		string userId = CurrentUserId!;
-
-		if (serverId != invite.ServerId)
-		{
-			return BadRequest();
-		}
-
-		if (!ModelState.IsValid)
-		{
-			await PopulateServersViewBag(userId);
-			return View(invite);
-		}
-
-		// Validate invite creation authorization and business rules via service
-		InviteValidationResult validation = await _inviteService.ValidateCreateInviteAsync(userId, invite);
-
-		if (validation.NotFound)
-		{
-			return NotFound();
-		}
-		if (validation.Unauthorized)
-		{
-			return Unauthorized();
-		}
-
-		if (!validation.IsValid)
-		{
-			foreach (KeyValuePair<string, string> kv in validation.FieldErrors)
-			{
-				ModelState.AddModelError(kv.Key, kv.Value);
-			}
-			await PopulateServersViewBag(userId);
-			return View(invite);
-		}
-
-		// Create the invite using validated data
-		string inviteCode = await _inviteService.GenerateUniqueInviteCodeAsync(8);
-		DateTime? expiresAt = validation.ValidatedExpiresAt;
-
-		ServerInvite newInvite = new ServerInvite
-		{
-			ServerId = invite.ServerId,
-			CreatedById = userId,
-			InvitedUserId = validation.InvitedUserId,
-			InviteCode = inviteCode,
-			CreatedAt = DateTime.UtcNow,
-			ExpiresAt = expiresAt,
-			OneTimeUse = invite.OneTimeUse,
-			IsUsed = false,
-			TimesUsed = 0
-		};
-
-		newInvite = await _inviteService.CreateInviteAsync(newInvite);
-
-		return RedirectToAction(nameof(Details), "Invites", new { id = newInvite.Id });
-	}
-
-	/// <summary>
-	/// Displays detailed information about a specific invite.
-	/// GET /Invites/Details/{id}
-	/// </summary>
-	/// <param name="id">The invite ID to display.</param>
-	/// <returns>View with invite details, or NotFound if invite doesn't exist.</returns>
-	[HttpGet("Invites/Details/{id}")]
-	public async Task<IActionResult> Details(int id)
-	{
-		string userId = CurrentUserId!;
-		ServerInvite? invite = await _inviteService.GetInviteAsync(id);
-		if (invite == null || invite.CreatedById != userId)
-		{
-			return NotFound();
-		}
-
-		// if the invite is user-specific and the current user is the invited user, redirect to redeem page
-		if (invite.InvitedUserId != null && invite.InvitedUserId == userId)
-		{
-			return RedirectToAction(nameof(Redeem), new { code = invite.InviteCode });
-		}
-
-		return View(invite);
 	}
 
 	/// <summary>
@@ -229,15 +95,5 @@ public class InvitesController : BaseController
 		}
 
 		return RedirectToAction(nameof(ServersController.Channels), "Servers", new { serverId = invite.ServerId });
-	}
-
-	/// <summary>
-	/// Populates ViewBag.Servers with a SelectList of servers the user belongs to.
-	/// </summary>
-	/// <param name="userId">The user ID to retrieve servers for.</param>
-	private async Task PopulateServersViewBag(string userId)
-	{
-		List<Server> servers = await _serverService.GetServersForUserAsync(userId);
-		ViewBag.Servers = new SelectList(servers, "Id", "Name");
 	}
 }
