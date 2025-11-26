@@ -1,3 +1,4 @@
+using Humanizer;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -29,4 +30,26 @@ public class ServerViewModel
     /// </summary>
     [MaxLength(1000)]
     public string? Description { get; set; }
+}
+
+[NotMapped]
+public class ChannelViewModel
+{
+    public int Id { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public string IconUrl { get; set; } = string.Empty;
+}
+
+[NotMapped]
+public class ServerChannelsViewModel
+{
+    public int ServerId { get; set; }
+
+    public int SelectedChannelId { get; set; }
+
+    public string ServerName { get; set; } = string.Empty;
+
+    public List<ChannelViewModel> Channels { get; set; } = new();
 }
