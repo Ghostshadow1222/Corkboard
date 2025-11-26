@@ -86,6 +86,11 @@ public class Server
 	public int MemberCount => Members.Count;
 
 	/// <summary>
+	/// UTC timestamp of the last message sent in the server.
+	/// </summary>
+	public DateTime? LastMessageTimeStamp { get; set; }
+
+	/// <summary>
 	/// Collection of channels that belong to this server.
 	/// </summary>
 	public ICollection<Channel> Channels { get; set; } = new List<Channel>();
