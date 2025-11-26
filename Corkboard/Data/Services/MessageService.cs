@@ -1,4 +1,5 @@
 using Corkboard.Data.DTOs;
+using Corkboard.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Corkboard.Data.Services;
@@ -9,11 +10,18 @@ namespace Corkboard.Data.Services;
 public interface IMessageService
 {
 	/// <summary>
+    /// Saves a new message to the database.
+    /// </summary>
+    /// <param name="message">The message to save.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+	Task<Message?> SaveMessageAsync(Message message);
+
+	/// <summary>
 	/// Retrieves DTOs for messages in the specified channel ordered chronologically.
 	/// </summary>
 	/// <param name="channelId">Channel id.</param>
 	/// <returns>List of message DTOs.</returns>
-	Task<List<MessageDto>> GetMessagesForChannelAsync(int channelId);
+	Task<List<MessageDto>> GetMessagesForChannelAsync(int channelId, int? limit = null);
 }
 
 /// <summary>
@@ -33,19 +41,41 @@ public class MessageService : IMessageService
 	}
 
 	/// <inheritdoc/>
-	public async Task<List<MessageDto>> GetMessagesForChannelAsync(int channelId)
+	public async Task<List<MessageDto>> GetMessagesForChannelAsync(int channelId, int? limit = null)
 	{
-		return await _context.Messages
+		List<MessageDto> messages = await _context.Messages
 			.Where(m => m.ChannelId == channelId)
 			.Include(m => m.Sender)
 			.OrderBy(m => m.CreatedAt)
+			.Take(limit ?? int.MaxValue)
 			.Select(m => new MessageDto
 			{
-				Text = m.Content,
-				Sender = m.Sender.UserName ?? "Unknown",
-				ImageUrl = m.Sender.ProfilePictureUrl,
+				Text = m.MessageContent,
+				SenderUsername = m.Sender.UserName!,
 				Timestamp = m.CreatedAt
 			})
 			.ToListAsync();
+
+		return messages;
 	}
+
+	/// <inheritdoc/>
+	public async Task<Message?> SaveMessageAsync(Message message)
+    {
+		// Update the server's last message timestamp
+		Channel? channel = await _context.Channels.FindAsync(message.ChannelId);
+		if (channel != null)
+		{
+			Server? server = await _context.Servers.FindAsync(channel.ServerId);
+			if (server != null)
+			{
+				server.LastMessageTimeStamp = message.CreatedAt;
+
+				_context.Messages.Add(message);
+				await _context.SaveChangesAsync();
+        		return message;
+			}
+		}
+		return null;
+    }
 }
