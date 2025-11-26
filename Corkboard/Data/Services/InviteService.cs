@@ -24,6 +24,13 @@ public interface IInviteService
 	public Task<System.Collections.Generic.List<ServerInvite>> GetInvitesCreatedByUserAsync(string userId);
 
 	/// <summary>
+	/// Gets all invites for a specific server, including creator information.
+	/// </summary>
+	/// <param name="serverId">The server's Id.</param>
+	/// <returns>List of invites for the server.</returns>
+	public Task<System.Collections.Generic.List<ServerInvite>> GetInvitesForServerAsync(int serverId);
+
+	/// <summary>
 	/// Creates a new server invite and persists it to the database.
 	/// </summary>
 	/// <param name="invite">The invite entity to create.</param>
@@ -97,6 +104,17 @@ public class InviteService : IInviteService
 			.Include(i => i.Server)
 			.Include(i => i.CreatedBy)
 			.Where(i => i.CreatedById == userId)
+			.ToListAsync();
+	}
+
+	/// <inheritdoc/>
+	public async Task<System.Collections.Generic.List<ServerInvite>> GetInvitesForServerAsync(int serverId)
+	{
+		return await _context.ServerInvites
+			.Include(i => i.Server)
+			.Include(i => i.CreatedBy)
+			.Where(i => i.ServerId == serverId)
+			.OrderByDescending(i => i.CreatedAt)
 			.ToListAsync();
 	}
 
