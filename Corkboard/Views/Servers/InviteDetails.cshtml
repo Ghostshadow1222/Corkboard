@@ -1,0 +1,40 @@
+@model Corkboard.Models.ServerInvite
+@{
+    ViewData["Title"] = "Invite Details";
+}
+
+@* Display detailed information about a specific invite *@
+<h1>Invite Details</h1>
+<h4>@ViewBag.ServerName</h4>
+
+@* All the metadata for this invite *@
+<div>
+    <h2>Invite Code: @Model.InviteCode</h2>
+    <p><strong>Server:</strong> @Model.Server.Name</p>
+    <p><strong>Created At:</strong> @Model.CreatedAt.ToString("g") UTC</p>
+    <p><strong>Expires:</strong> @(Model.ExpiresAt?.ToString("g") ?? "Never")</p>
+    <p><strong>Current Uses:</strong> @Model.TimesUsed</p>
+    <p><strong>One Time Use:</strong> @(Model.OneTimeUse ? "Yes" : "No")</p>
+    <p><strong>Status:</strong> 
+        @if (Model.IsUsed)
+        {
+            <span class="text-muted">Used</span>
+        }
+        else if (Model.ExpiresAt != null && Model.ExpiresAt < DateTime.UtcNow)
+        {
+            <span class="text-warning">Expired</span>
+        }
+        else
+        {
+            <span class="text-success">Active</span>
+        }
+    </p>
+    @if (!string.IsNullOrEmpty(Model.InvitedUserId))
+    {
+        <p><strong>Invited User:</strong> @Model.InvitedUserId</p>
+    }
+</div>
+
+<div>
+    <a asp-action="Invites" asp-route-serverId="@Model.ServerId">Back to Invites</a>
+</div>
