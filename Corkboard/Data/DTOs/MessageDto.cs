@@ -14,12 +14,7 @@ public class MessageDto
 	/// <summary>
 	/// The sender's username.
 	/// </summary>
-	public string Sender { get; set; } = null!;
-
-	/// <summary>
-	/// Optional URL to the sender's profile image.
-	/// </summary>
-	public string? ImageUrl { get; set; }
+	public string SenderUsername { get; set; } = null!;
 
 	/// <summary>
 	/// UTC timestamp when the message was created.
