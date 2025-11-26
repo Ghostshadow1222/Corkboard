@@ -1,4 +1,4 @@
-using Humanizer;
+using Corkboard.Data.DTOs;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -47,9 +47,31 @@ public class ServerChannelsViewModel
 {
     public int ServerId { get; set; }
 
-    public int SelectedChannelId { get; set; }
+    public int ChannelId { get; set; }
 
     public string ServerName { get; set; } = string.Empty;
 
     public List<ChannelViewModel> Channels { get; set; } = new();
+
+    public List<ServerListItemViewModel> UserServers { get; set; } = new();
+
+    public List<MessageDto> Messages { get; set; } = new();
+}
+
+[NotMapped]
+public class ServerListItemViewModel
+{
+    public int Id { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public string? IconUrl { get; set; }
+}
+
+[NotMapped]
+public class ChatPartialModel
+{
+    public int ServerId { get; set; }
+    public int ChannelId { get; set; }
+    public List<MessageDto> Messages { get; set; } = new();
 }
