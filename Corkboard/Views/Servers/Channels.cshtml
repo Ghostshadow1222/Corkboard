@@ -1,4 +1,4 @@
-﻿@model ServerChannelsViewModel
+﻿@model Corkboard.Models.ViewModels.ServersController.ServerChannelsViewModel
 
 <style>
 :root{--sb-bg:#ffffff;--sb-muted:#6b7280;--sb-accent:#f3f4f6;--sb-border:#e6e9ee;--sb-focus:#111827;--sb-link:#3b82f6}
@@ -95,7 +95,7 @@
   </nav>
 
   <main class="sb-chat-main">
-    @await Html.PartialAsync("_ChatPartial", new ChatPartialModel { ServerId = Model.ServerId, ChannelId = Model.ChannelId, Messages = Model.Messages })
+    @await Html.PartialAsync("_ChatPartial", new Corkboard.Models.ViewModels.ServersController.ChatPartialModel { ServerId = Model.ServerId, ChannelId = Model.ChannelId, Messages = Model.Messages })
   </main>
 </div>
 
