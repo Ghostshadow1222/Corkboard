@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Corkboard.Data.Services;
 using Corkboard.Models;
+using Corkboard.Models.ViewModels.ServersController;
+using Corkboard.Models.ViewModels.InvitesController;
 using Corkboard.Data.DTOs;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -39,8 +41,14 @@ public class ServersController : BaseController
 	/// GET /Servers
 	/// </summary>
 	/// <returns>View with list of user's servers.</returns>
-	public async Task<IActionResult> Index()
+	[HttpGet("Servers/{serverId?}")]
+	public async Task<IActionResult> Index(int? serverId)
 	{
+		if (serverId != null) 
+		{
+			RedirectToAction(nameof(Channels), new { serverId = serverId} );
+		}
+
 		string userId = CurrentUserId!;
 
 		List<Server> servers = await _serverService.GetServersForUserAsync(userId);

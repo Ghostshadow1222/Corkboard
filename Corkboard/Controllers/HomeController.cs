@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Corkboard.Models;
+using Corkboard.Models.ViewModels.HomeController;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Corkboard.Controllers

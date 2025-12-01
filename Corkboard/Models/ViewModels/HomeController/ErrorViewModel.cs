@@ -1,4 +1,4 @@
-namespace Corkboard.Models;
+namespace Corkboard.Models.ViewModels.HomeController;
 
 public class ErrorViewModel
 {

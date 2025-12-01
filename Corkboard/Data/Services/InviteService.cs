@@ -1,4 +1,5 @@
 ﻿using Corkboard.Models;
+using Corkboard.Models.ViewModels.InvitesController;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 

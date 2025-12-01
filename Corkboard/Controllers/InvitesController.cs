@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Corkboard.Data.Services;
 using Corkboard.Models;
+using Corkboard.Models.ViewModels.InvitesController;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;

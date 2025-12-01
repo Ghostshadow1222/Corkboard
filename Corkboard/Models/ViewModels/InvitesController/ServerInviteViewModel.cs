@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Corkboard.Models;
+namespace Corkboard.Models.ViewModels.InvitesController;
 
 /// <summary>
 /// View model for creating a new server invite with validation logic.
