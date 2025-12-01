@@ -61,3 +61,11 @@ document.getElementById("send-btn").addEventListener("click", function (event) {
     document.getElementById("message-input").value = "";
     event.preventDefault();
 });
+
+// Send message on Enter key press
+document.getElementById("message-input").addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("send-btn").click();
+    }
+});
