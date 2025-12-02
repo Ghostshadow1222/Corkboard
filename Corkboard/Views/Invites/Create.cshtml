@@ -1,75 +1,79 @@
 ﻿@model Corkboard.Models.ServerInviteViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Invite";
 }
 
-@* Page header for creating a new server invite *@
-<h1>Create</h1>
+<div class="section-spacing">
+    <h1>Create Invite</h1>
 
-@* Form for generating a new invite to a server *@
-<h4>Invite</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        @* Submit form to create the invite *@
-        <form asp-action="Create">
-            @* Display any validation errors *@
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            @* Select which server to create an invite for *@
-            <div class="form-group">
-                <label asp-for="ServerId" class="control-label"></label>
-                <select asp-for="ServerId" class="form-control" asp-items="@(ViewBag.Servers as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)"></select>
-                <span asp-validation-for="ServerId" class="text-danger"></span>
-            </div>
-
-            @* Specify who to invite (by username) *@
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-
-            @* Toggle whether the invite has an expiration date *@
-            <div class="form-group">
-                <div class="form-check">
-                    <input asp-for="Expires" id="expiresToggle" class="form-check-input" />
-                    <label asp-for="Expires" class="form-check-label">Expires</label>
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card card-purple">
+                <div class="card-header">
+                    <h4 class="mb-0">Invite Details</h4>
                 </div>
-                <span asp-validation-for="Expires" class="text-danger"></span>
-            </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            @* Date picker for when the invite expires (shown when toggle is enabled) *@
-            <div class="form-group" id="expiresPicker" style="display:none;">
-                <label asp-for="ExpiresAt" class="control-label"></label>
-                <input asp-for="ExpiresAt" class="form-control" type="date" />
-                <span asp-validation-for="ExpiresAt" class="text-danger"></span>
-            </div>
+                        <div class="form-group">
+                            <label asp-for="ServerId" class="control-label">Server</label>
+                            <select asp-for="ServerId" class="form-control" asp-items="@(ViewBag.Servers as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)">
+                                <option value="">-- Select a Server --</option>
+                            </select>
+                            <span asp-validation-for="ServerId" class="text-danger"></span>
+                        </div>
 
-            @* Toggle to make this invite usable only once *@
-            <div class="form-group">
-                <div class="form-check">
-                    <input asp-for="OneTimeUse" class="form-check-input" />
-                    <label asp-for="OneTimeUse" class="form-check-label"></label>
+                        <div class="form-group">
+                            <label asp-for="Username" class="control-label">Invite Specific User (Optional)</label>
+                            <input asp-for="Username" class="form-control" placeholder="Enter username" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                            <small class="form-text text-muted">Leave blank to create a general invite</small>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input asp-for="Expires" id="expiresToggle" class="form-check-input" />
+                                <label asp-for="Expires" class="form-check-label">Set Expiration Date</label>
+                            </div>
+                            <span asp-validation-for="Expires" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" id="expiresPicker" style="display:none;">
+                            <label asp-for="ExpiresAt" class="control-label">Expiration Date</label>
+                            <input asp-for="ExpiresAt" class="form-control" type="date" />
+                            <span asp-validation-for="ExpiresAt" class="text-danger"></span>
+                            <small class="form-text text-muted">After this date, the invite cannot be used</small>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input asp-for="OneTimeUse" class="form-check-input" />
+                                <label asp-for="OneTimeUse" class="form-check-label">One-Time Use Only</label>
+                            </div>
+                            <span asp-validation-for="OneTimeUse" class="text-danger"></span>
+                            <small class="form-text text-muted">If checked, the invite can only be used once</small>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-purple btn-lg w-100">
+                                <i class="bi bi-envelope-plus"></i> Create Invite
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <span asp-validation-for="OneTimeUse" class="text-danger"></span>
             </div>
 
-            @* Submit button to create the invite *@
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="mt-3">
+                <a asp-action="Index" class="btn btn-outline-purple">
+                    <i class="bi bi-arrow-left"></i> Back to Invites
+                </a>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
-@* Link back to the invites list *@
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@* Include validation scripts and toggle script for expiry date picker *@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

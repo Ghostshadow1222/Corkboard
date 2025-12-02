@@ -4,81 +4,63 @@
     ViewData["Title"] = "Redeem Invite";
 }
 
-@* Custom styles for the invite redemption page *@
-<style>
-    .redeem-page {
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
+<div class="section-spacing">
+    <div class="row justify-content-center" style="min-height: 60vh; align-items: center;">
+        <div class="col-md-6 col-lg-5">
+            <div class="card card-purple shadow-lg">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4" style="color: #6f42c1;">
+                        <i class="bi bi-envelope-open" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h2 class="mb-3">@Model.Server.Name</h2>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Server.Description))
+                    {
+                        <p class="text-muted mb-4">@Model.Server.Description</p>
+                    }
 
-    .redeem-card {
-        width: 100%;
-        max-width: 520px;
-        background: #fff;
-        border: 1px solid #e1e1e1;
-        border-radius: 8px;
-        padding: 1.75rem;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.04);
-        text-align: center;
-    }
+                    <div class="card bg-light mb-4 p-3">
+                        <div class="mb-2">
+                            <strong>Invite Code:</strong>
+                            <code class="d-block mt-1" style="color: #6f42c1; font-size: 1.2rem;">@Model.InviteCode</code>
+                        </div>
+                        
+                        @if (Model.ExpiresAt != null)
+                        {
+                            <div class="text-muted" style="font-size: 0.9rem;">
+                                <i class="bi bi-clock"></i> Expires: @Model.ExpiresAt?.ToLocalTime().ToString("MMMM dd, yyyy 'at' hh:mm tt")
+                            </div>
+                        }
+                        
+                        @if (Model.OneTimeUse)
+                        {
+                            <div class="mt-2">
+                                <span class="badge badge-purple">One-Time Use</span>
+                            </div>
+                        }
+                    </div>
 
-    .redeem-card h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.5rem;
-    }
+                    <form asp-action="Redeem" asp-controller="Invites" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-purple btn-lg w-100">
+                            <i class="bi bi-box-arrow-in-right"></i> Join @Model.Server.Name
+                        </button>
+                    </form>
 
-    .redeem-card p.description {
-        color: #555;
-        margin-bottom: 1.25rem;
-    }
+                    <div class="mt-4">
+                        <p class="text-muted mb-2" style="font-size: 0.9rem;">
+                            <i class="bi bi-info-circle"></i> By joining, you'll become a member of this server
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-    .invite-meta {
-        font-size: 0.9rem;
-        color: #666;
-        margin-bottom: 1rem;
-    }
-
-    .join-btn {
-        display: inline-block;
-        padding: 0.6rem 1.1rem;
-        font-size: 1rem;
-        border-radius: 6px;
-        border: none;
-        background-color: #0078d4;
-        color: #fff;
-        cursor: pointer;
-    }
-
-    .join-btn:hover {
-        background-color: #0063b1;
-    }
-</style>
-
-@* Centered card displaying the server and join button *@
-<div class="redeem-page">
-    @* Card showing server info that the user can join *@
-    <div class="redeem-card">
-        @* Display the server name and description *@
-        <h2>@Model.Server.Name</h2>
-
-        <p class="description">@Model.Server.Description</p>
-
-        @* Show the invite code and expiration details *@
-        <div class="invite-meta">
-            <div>Invite Code: <strong>@Model.InviteCode</strong></div>
-            @if (Model.ExpiresAt != null)
-            {
-                <div>Expires: @Model.ExpiresAt?.ToLocalTime().ToString("g")</div>
-            }
+            <div class="text-center mt-3">
+                <a asp-controller="Servers" asp-action="Index" class="btn btn-outline-purple">
+                    <i class="bi bi-arrow-left"></i> Back to Servers
+                </a>
+            </div>
         </div>
-
-        @* Form to accept the invite and join the server *@
-        <form asp-action="Redeem" asp-controller="Invites" asp-route-id="@Model.Id" method="post">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="join-btn">Join</button>
-        </form>
     </div>
 </div>

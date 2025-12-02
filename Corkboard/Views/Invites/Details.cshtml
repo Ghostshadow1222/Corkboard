@@ -1,17 +1,167 @@
 ﻿@model Corkboard.Models.ServerInvite
 @{
+    ViewData["Title"] = "Invite Details";
 }
 
-@* Display detailed information about a specific invite *@
-<h1>Invite Details</h1>
+<div class="section-spacing">
+    <h1>Invite Details</h1>
 
-@* All the metadata for this invite *@
-<div>
-    <h2>Invite Code: @Model.InviteCode</h2>
-    <p>Server Id: @Model.Server.Id</p>
-    <p>Created At: @Model.CreatedAt.ToString("g")</p>
-    <p>Expires: @(Model.ExpiresAt?.ToString("g") ?? "Never")</p>
-    <p>Current Uses: @Model.TimesUsed</p>
-    <p>Created By Id: @Model.CreatedById</p>
-    <p>Invited User Id: @Model.InvitedUserId</p>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card card-purple">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-envelope"></i> Invite Code: <code class="text-white">@Model.InviteCode</code>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Server:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <a asp-controller="Servers" asp-action="Details" asp-route-id="@Model.Server.Id">
+                                @Model.Server.Name
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Created By:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @Model.CreatedBy?.UserName
+                        </div>
+                    </div>
+
+                    @if (Model.InvitedUser != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-4">
+                                <strong>Invited User:</strong>
+                            </div>
+                            <div class="col-sm-8">
+                                @Model.InvitedUser.UserName
+                                <span class="badge badge-purple">Direct Invite</span>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Created At:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @Model.CreatedAt.ToString("MMMM dd, yyyy 'at' hh:mm tt") UTC
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Expires:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @if (Model.ExpiresAt.HasValue)
+                            {
+                                @Model.ExpiresAt.Value.ToString("MMMM dd, yyyy 'at' hh:mm tt")
+                                <text> UTC</text>
+                                @if (Model.ExpiresAt < DateTime.UtcNow)
+                                {
+                                    <span class="badge bg-warning text-dark ms-2">Expired</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Never</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Usage Type:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @if (Model.OneTimeUse)
+                            {
+                                <span class="badge badge-purple">One-Time Use</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-green">Multi-Use</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Times Used:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @Model.TimesUsed
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Status:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @if (Model.IsUsed)
+                            {
+                                <span class="badge bg-secondary">Used</span>
+                            }
+                            else if (Model.ExpiresAt != null && Model.ExpiresAt < DateTime.UtcNow)
+                            {
+                                <span class="badge bg-warning text-dark">Expired</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-green">Active</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Share This Invite</h5>
+                    <p class="text-muted">Share the following URL with others to invite them to the server:</p>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="inviteUrl" value="@Url.Action("Redeem", "Invites", new { id = Model.Id }, Context.Request.Scheme)" readonly />
+                        <button class="btn btn-purple" type="button" onclick="copyInviteUrl()">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a asp-action="Index" class="btn btn-outline-purple">
+                    <i class="bi bi-arrow-left"></i> Back to Invites
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        function copyInviteUrl() {
+            var copyText = document.getElementById("inviteUrl");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(copyText.value);
+            
+            // Change button text temporarily
+            var btn = event.target.closest('button');
+            var originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+            setTimeout(function() {
+                btn.innerHTML = originalHtml;
+            }, 2000);
+        }
+    </script>
+}

@@ -5,52 +5,89 @@
     ViewData["Title"] = "My Invites";
 }
 
-@* List all of the invites you've created *@
-<h1>@ViewData["Title"]</h1>
+<div class="section-spacing">
+    <h1>@ViewData["Title"]</h1>
 
-@* Table showing invite codes, servers, dates, and statuses *@
-<table class="table table-striped" id="invitesTable" style="margin-top:1rem;">
-    <thead>
-        <tr>
-            <th>Code</th>
-            <th>Server</th>
-            <th>Created At (UTC)</th>
-            <th>Expires At (UTC)</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @* Loop through and display each invite *@
-        @foreach (var invite in Model ?? Enumerable.Empty<ServerInvite>())
-        {
-            @* Determine if the invite is still active *@
-            var isUsed = invite.IsUsed || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow);
-            <tr>
-                <td>@invite.InviteCode</td>
-                <td>@(invite.Server?.Name ?? invite.ServerId.ToString())</td>
-                <td>@(invite.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</td>
-                <td>@(invite.ExpiresAt?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
-                <td>
-                    @* Show the current status of the invite *@
-                    @if (invite.IsUsed)
-                    {
-                        <span class="text-muted">Used</span>
-                    }
-                    else if (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow)
-                    {
-                        <span class="text-warning">Expired</span>
-                    }
-                    else
-                    {
-                        <span class="text-success">Active</span>
-                    }
-                </td>
-                @* Link to view the full details of this invite *@
-                <td>
-                    <a asp-action="Details" asp-controller="Invites" asp-route-id="@invite.Id" class="btn btn-sm btn-outline-primary">Details</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="mb-4">
+        <a asp-action="Create" class="btn btn-purple">
+            <i class="bi bi-plus-circle"></i> Create New Invite
+        </a>
+    </div>
+
+    @if (Model?.Any() == true)
+    {
+        <div class="card card-purple">
+            <div class="card-body">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Server</th>
+                            <th>Created At (UTC)</th>
+                            <th>Expires At (UTC)</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invite in Model)
+                        {
+                            var isUsed = invite.IsUsed || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow);
+                            <tr>
+                                <td>
+                                    <code class="text-purple">@invite.InviteCode</code>
+                                </td>
+                                <td>
+                                    <strong>@(invite.Server?.Name ?? invite.ServerId.ToString())</strong>
+                                </td>
+                                <td>@(invite.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</td>
+                                <td>@(invite.ExpiresAt?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                                <td>
+                                    @if (invite.IsUsed)
+                                    {
+                                        <span class="badge bg-secondary">Used</span>
+                                    }
+                                    else if (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow)
+                                    {
+                                        <span class="badge bg-warning text-dark">Expired</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-green">Active</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-controller="Invites" asp-route-id="@invite.Id" class="btn btn-sm btn-outline-purple">
+                                        <i class="bi bi-eye"></i> Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>No invites yet!</h4>
+            <p>You haven't created any invites. Create one to invite others to your servers.</p>
+            <a asp-action="Create" class="btn btn-purple mt-2">
+                <i class="bi bi-plus-circle"></i> Create Your First Invite
+            </a>
+        </div>
+    }
+
+    <div class="mt-4">
+        <a asp-controller="Servers" asp-action="Index" class="btn btn-outline-purple">
+            <i class="bi bi-arrow-left"></i> Back to Servers
+        </a>
+    </div>
+</div>
+
+<style>
+    .text-purple {
+        color: #6f42c1;
+    }
+</style>
