@@ -1,6 +1,37 @@
 ﻿@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="section-spacing">
+    <h1>@ViewData["Title"]</h1>
+
+    <div class="card card-purple mt-4">
+        <div class="card-body">
+            <h4>Your Privacy Matters</h4>
+            <p class="lead">This page details how Corkboard handles your information.</p>
+            
+            <hr />
+            
+            <h5 class="mt-4">Information We Collect</h5>
+            <p>Use this section to detail what information your site collects from users.</p>
+            
+            <h5 class="mt-4">How We Use Your Information</h5>
+            <p>Explain how the collected information is used to provide and improve the service.</p>
+            
+            <h5 class="mt-4">Data Security</h5>
+            <p>Describe the measures taken to protect user data and ensure privacy.</p>
+            
+            <h5 class="mt-4">Your Rights</h5>
+            <p>Inform users about their rights regarding their personal data.</p>
+            
+            <h5 class="mt-4">Contact Us</h5>
+            <p>Provide information on how users can contact you with privacy concerns.</p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-outline-purple">
+            <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
+    </div>
+</div>
