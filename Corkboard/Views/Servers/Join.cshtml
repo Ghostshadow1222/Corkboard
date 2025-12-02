@@ -5,10 +5,10 @@
     bool canJoin = Model != null && Model.PrivacyLevel == PrivacyLevel.Public;
 }
 
-<div class="container mt-5">
+<div class="container section-spacing">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow">
+            <div class="card card-purple shadow-lg">
                 <div class="card-body text-center p-5">
                     @if (canJoin)
                     {
@@ -16,19 +16,40 @@
                             <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
                         </div>
                         <h3 class="card-title mb-3">You can join this server!</h3>
-                        <p class="text-muted mb-4">@Model?.Name</p>
-                        <button type="button" class="btn btn-primary btn-lg">Join</button>
+                        <p class="text-muted mb-2"><strong>@Model?.Name</strong></p>
+                        @if (!string.IsNullOrEmpty(Model?.Description))
+                        {
+                            <p class="text-muted mb-4">@Model.Description</p>
+                        }
+                        <form asp-action="Join" asp-route-id="@Model?.Id" method="post">
+                            <button type="submit" class="btn btn-purple btn-lg">
+                                <i class="bi bi-box-arrow-in-right"></i> Join Server
+                            </button>
+                        </form>
                     }
                     else
                     {
-                        <div class="text-danger mb-4">
-                            <i class="bi bi-x-circle-fill" style="font-size: 4rem;"></i>
+                        <div class="mb-4" style="color: #6f42c1;">
+                            <i class="bi bi-lock-fill" style="font-size: 4rem;"></i>
                         </div>
-                        <h3 class="card-title mb-3">Unable to join this server</h3>
-                        <p class="text-muted">Please join via an invite link.</p>
+                        <h3 class="card-title mb-3">This server is private</h3>
+                        <p class="text-muted mb-4">You need an invitation to join this server. Please ask a member or moderator for an invite link.</p>
+                        <a asp-action="Index" class="btn btn-outline-purple">
+                            <i class="bi bi-arrow-left"></i> Back to Servers
+                        </a>
                     }
                 </div>
             </div>
+            
+            @if (!canJoin)
+            {
+                <div class="mt-4 text-center">
+                    <p class="text-muted">Have an invite code?</p>
+                    <a asp-controller="Invites" asp-action="Redeem" class="btn btn-purple">
+                        <i class="bi bi-key"></i> Redeem Invite
+                    </a>
+                </div>
+            }
         </div>
     </div>
 </div>

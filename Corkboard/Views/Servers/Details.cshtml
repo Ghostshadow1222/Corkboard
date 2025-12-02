@@ -1,5 +1,136 @@
 ﻿@model Server
 @{
+    ViewData["Title"] = "Server Details";
 }
 
-<h1>Server Details</h1>
+<div class="section-spacing">
+    <h1>@Model.Name</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card card-purple mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Server Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Server ID:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @Model.Id
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Owner:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @Model.Owner?.UserName
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Members:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <span class="badge badge-purple">@Model.MemberCount members</span>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-4">
+                                <strong>Description:</strong>
+                            </div>
+                            <div class="col-sm-8">
+                                @Model.Description
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Created:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Privacy Level:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <span class="badge badge-green">@Model.PrivacyLevel</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Channels?.Any() == true)
+            {
+                <div class="card card-purple mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Channels</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var channel in Model.Channels)
+                            {
+                                <li class="list-group-item">
+                                    <i class="bi bi-hash"></i> @channel.Name
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+
+            @if (Model.Members?.Any() == true)
+            {
+                <div class="card card-purple">
+                    <div class="card-header">
+                        <h4 class="mb-0">Members</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var member in Model.Members)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="bi bi-person-fill"></i> @member.User?.UserName
+                                    </span>
+                                    <span class="badge badge-purple">@member.Role</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Actions</h5>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Invites" asp-action="Create" asp-route-serverId="@Model.Id" class="btn btn-purple">
+                            <i class="bi bi-envelope-plus"></i> Create Invite
+                        </a>
+                        <a asp-controller="Invites" asp-action="Index" class="btn btn-outline-purple">
+                            <i class="bi bi-list"></i> View Invites
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-purple">
+                            <i class="bi bi-arrow-left"></i> Back to Servers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
