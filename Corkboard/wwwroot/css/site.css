@@ -29,3 +29,201 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Custom purple background for navbar */
+.bg-purple {
+  background-color: #6f42c1 !important;
+}
+
+/* Green background for student message */
+.student-message {
+  background-color: #28a745;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  display: inline-block;
+}
+
+/* Purple button styling with green hover effect */
+.btn-purple {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+  color: white;
+}
+
+.btn-purple:hover,
+.btn-purple:focus {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-purple:active {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+/* Override primary button to use purple */
+.btn-primary {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-primary:active {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+/* Outline purple button with green hover */
+.btn-outline-purple {
+  color: #6f42c1;
+  border-color: #6f42c1;
+  background-color: transparent;
+}
+
+.btn-outline-purple:hover,
+.btn-outline-purple:focus {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+/* Override outline-primary */
+.btn-outline-primary {
+  color: #6f42c1;
+  border-color: #6f42c1;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+/* Spacing utilities */
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.py-4 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.section-spacing {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Card styling with purple accents */
+.card-purple {
+  border-color: #6f42c1;
+  border-width: 2px;
+}
+
+.card-purple .card-header {
+  background-color: #6f42c1;
+  color: white;
+  font-weight: bold;
+}
+
+/* Table styling improvements */
+.table-hover tbody tr:hover {
+  background-color: rgba(111, 66, 193, 0.1);
+}
+
+/* Link styling with purple */
+a {
+  color: #6f42c1;
+}
+
+a:hover {
+  color: #28a745;
+}
+
+/* Form label emphasis */
+.form-label,
+.control-label {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Page headers */
+h1, h2, h3, h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  border-bottom: 3px solid #6f42c1;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+
+/* Form group spacing */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Identity page styling overrides */
+.identity-card {
+  border: 2px solid #6f42c1;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Navigation tab styling for Identity pages */
+.nav-pills .nav-link {
+  color: #6f42c1;
+  border: 2px solid transparent;
+  margin-bottom: 0.5rem;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #6f42c1;
+  color: white;
+}
+
+/* Alert styling */
+.alert-success {
+  background-color: #d4edda;
+  border-color: #28a745;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border-color: #dc3545;
+  color: #721c24;
+}
+
+/* Badge styling */
+.badge-purple {
+  background-color: #6f42c1;
+  color: white;
+}
+
+.badge-green {
+  background-color: #28a745;
+  color: white;
+}
