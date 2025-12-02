@@ -2,18 +2,42 @@
     ViewData["Title"] = "Chat | Corkboard";
 }
 
+<div class="section-spacing">
+    <h1>Chats</h1>
 
-<div class="text-center">
-    <h4>Chats</h4>
-
-    @{
-        if (ViewData["ChatId"] != null)
-        {
-            <p>Chat ID is: @ViewData["ChatId"]</p>
-        }
-        else
-        {
-            <p>No Chat ID provided.</p>
-        }
-    }
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            @if (ViewData["ChatId"] != null)
+            {
+                <div class="card card-purple">
+                    <div class="card-header">
+                        <h4 class="mb-0">
+                            <i class="bi bi-chat-dots"></i> Chat Room
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> <strong>Chat ID:</strong> @ViewData["ChatId"]
+                        </div>
+                        <p class="text-muted">This chat feature is under development. More functionality coming soon!</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card card-purple">
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4" style="color: #6f42c1;">
+                            <i class="bi bi-chat-text" style="font-size: 4rem;"></i>
+                        </div>
+                        <h3 class="mb-3">No Chat Selected</h3>
+                        <p class="text-muted mb-4">Select a server and channel to start chatting with others.</p>
+                        <a asp-controller="Servers" asp-action="Index" class="btn btn-purple">
+                            <i class="bi bi-server"></i> Browse Servers
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
