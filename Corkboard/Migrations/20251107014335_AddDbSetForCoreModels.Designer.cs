@@ -3,6 +3,7 @@ using System;
 using Corkboard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Corkboard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251107014335_AddDbSetForCoreModels")]
+    partial class AddDbSetForCoreModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -97,63 +100,11 @@ namespace Corkboard.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("PrivacyLevel")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Servers");
-                });
-
-            modelBuilder.Entity("Corkboard.Models.ServerInvite", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedById")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InviteCode")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InvitedUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("OneTimeUse")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ServerId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TimesUsed")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("InviteCode")
-                        .IsUnique();
-
-                    b.HasIndex("InvitedUserId");
-
-                    b.HasIndex("ServerId");
-
-                    b.ToTable("ServerInvites");
                 });
 
             modelBuilder.Entity("Corkboard.Models.ServerMember", b =>
@@ -162,15 +113,13 @@ namespace Corkboard.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("InviteId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Role")
+                    b.Property<string>("Role")
+                        .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("ServerId")
                         .HasColumnType("INTEGER");
@@ -181,12 +130,9 @@ namespace Corkboard.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InviteId");
+                    b.HasIndex("ServerId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("ServerId", "UserId")
-                        .IsUnique();
 
                     b.ToTable("ServerMembers");
                 });
@@ -444,37 +390,8 @@ namespace Corkboard.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Corkboard.Models.ServerInvite", b =>
-                {
-                    b.HasOne("Corkboard.Models.UserAccount", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Corkboard.Models.UserAccount", "InvitedUser")
-                        .WithMany()
-                        .HasForeignKey("InvitedUserId");
-
-                    b.HasOne("Corkboard.Models.Server", "Server")
-                        .WithMany()
-                        .HasForeignKey("ServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("InvitedUser");
-
-                    b.Navigation("Server");
-                });
-
             modelBuilder.Entity("Corkboard.Models.ServerMember", b =>
                 {
-                    b.HasOne("Corkboard.Models.ServerInvite", "Invite")
-                        .WithMany("CreatedMemberships")
-                        .HasForeignKey("InviteId");
-
                     b.HasOne("Corkboard.Models.Server", "Server")
                         .WithMany("Members")
                         .HasForeignKey("ServerId")
@@ -486,8 +403,6 @@ namespace Corkboard.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Invite");
 
                     b.Navigation("Server");
 
@@ -555,11 +470,6 @@ namespace Corkboard.Migrations
                     b.Navigation("Channels");
 
                     b.Navigation("Members");
-                });
-
-            modelBuilder.Entity("Corkboard.Models.ServerInvite", b =>
-                {
-                    b.Navigation("CreatedMemberships");
                 });
 #pragma warning restore 612, 618
         }

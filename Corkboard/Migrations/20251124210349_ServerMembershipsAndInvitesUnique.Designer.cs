@@ -3,6 +3,7 @@ using System;
 using Corkboard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Corkboard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251124210349_ServerMembershipsAndInvitesUnique")]
+    partial class ServerMembershipsAndInvitesUnique
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -162,9 +165,6 @@ namespace Corkboard.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("InviteId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("TEXT");
 
@@ -180,8 +180,6 @@ namespace Corkboard.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("InviteId");
 
                     b.HasIndex("UserId");
 
@@ -471,10 +469,6 @@ namespace Corkboard.Migrations
 
             modelBuilder.Entity("Corkboard.Models.ServerMember", b =>
                 {
-                    b.HasOne("Corkboard.Models.ServerInvite", "Invite")
-                        .WithMany("CreatedMemberships")
-                        .HasForeignKey("InviteId");
-
                     b.HasOne("Corkboard.Models.Server", "Server")
                         .WithMany("Members")
                         .HasForeignKey("ServerId")
@@ -486,8 +480,6 @@ namespace Corkboard.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Invite");
 
                     b.Navigation("Server");
 
@@ -555,11 +547,6 @@ namespace Corkboard.Migrations
                     b.Navigation("Channels");
 
                     b.Navigation("Members");
-                });
-
-            modelBuilder.Entity("Corkboard.Models.ServerInvite", b =>
-                {
-                    b.Navigation("CreatedMemberships");
                 });
 #pragma warning restore 612, 618
         }
