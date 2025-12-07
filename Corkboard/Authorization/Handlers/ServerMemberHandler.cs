@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Corkboard.Authorization.Requirements;
-using Corkboard.Authorization.Helpers;
 using Corkboard.Data.Services;
 using Microsoft.AspNetCore.Authorization;
 
