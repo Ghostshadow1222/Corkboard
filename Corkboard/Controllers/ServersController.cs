@@ -211,8 +211,6 @@ public class ServersController : BaseController
 	[Authorize(Policy = "ServerModerator")]
 	public async Task<IActionResult> Invites(int serverId)
 	{
-		string userId = CurrentUserId!;
-
 		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
 		{
