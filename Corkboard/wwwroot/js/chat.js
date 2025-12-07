@@ -28,8 +28,14 @@ async function start() {
         return;
     }
 
-    await connection.start();
-    await connection.invoke("JoinChannel", currentChannelId);
+    try {
+        await connection.start();
+        await connection.invoke("JoinChannel", currentChannelId);
+        document.getElementById("send-btn").disabled = false;
+    } catch (err) {
+        console.error(err.toString());
+        alert("Failed to connect to chat. Please refresh the page.");
+    }
 }
 start().then(function () {
     document.getElementById("send-btn").disabled = false;
