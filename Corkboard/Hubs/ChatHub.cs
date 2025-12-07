@@ -2,6 +2,7 @@ using Corkboard.Data.DTOs;
 using Corkboard.Models;
 using Corkboard.Data.Services;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Corkboard.Hubs;
 
@@ -20,6 +21,7 @@ public class ChatHub : Hub
 
     public async Task JoinChannel(int channelId)
     {
+        
         string? userId = Context.UserIdentifier;
         if (userId == null)
         {
@@ -33,7 +35,8 @@ public class ChatHub : Hub
             throw new HubException("Channel not found.");
         }
 
-        if (!await _serverService.IsUserMemberOfServerAsync(channel.ServerId, userId))
+        bool isMember = await _serverService.IsUserMemberOfServerAsync(channel.ServerId, userId);
+        if (!isMember)
         {
             throw new HubException("Access denied to channel.");
         }
@@ -54,6 +57,15 @@ public class ChatHub : Hub
         if (userId == null)
         {
             throw new HubException("Not authenticated.");
+        }
+        // Verify membership before sending
+        Channel? channel = await _channelService.GetChannelAsync(channelId);
+        if (channel == null) throw new HubException("Channel not found.");
+
+        bool isMember = await _serverService.IsUserMemberOfServerAsync(channel.ServerId, userId);
+        if (!isMember) 
+        {
+            throw new HubException("Access denied to channel.");
         }
 
         // Create Message and MessageDto instances
