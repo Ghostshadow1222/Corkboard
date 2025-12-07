@@ -62,20 +62,22 @@ public class MessageService : IMessageService
 	/// <inheritdoc/>
 	public async Task<Message?> SaveMessageAsync(Message message)
     {
-		// Update the server's last message timestamp
+		// Validate channel exists
 		Channel? channel = await _context.Channels.FindAsync(message.ChannelId);
-		if (channel != null)
+		if (channel == null)
 		{
-			Server? server = await _context.Servers.FindAsync(channel.ServerId);
-			if (server != null)
-			{
-				server.LastMessageTimeStamp = message.CreatedAt;
-
-				_context.Messages.Add(message);
-				await _context.SaveChangesAsync();
-        		return message;
-			}
+			throw new InvalidOperationException($"Channel with ID {message.ChannelId} not found.");
 		}
-		return null;
+		// Validate server exists
+		Server? server = await _context.Servers.FindAsync(channel.ServerId);
+		if (server == null)
+		{
+			throw new InvalidOperationException($"Server with ID {channel.ServerId} not found.");
+		}
+
+		server.LastMessageTimeStamp = message.CreatedAt;
+		_context.Messages.Add(message);
+		await _context.SaveChangesAsync();
+		return message;
     }
 }
