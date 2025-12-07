@@ -235,8 +235,6 @@ public class ServersController : BaseController
 	[Authorize(Policy = "ServerModerator")]
 	public async Task<IActionResult> CreateInvite(int serverId)
 	{
-		string userId = CurrentUserId!;
-
 		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
 		{
@@ -334,8 +332,6 @@ public class ServersController : BaseController
 	[Authorize(Policy = "ServerModerator")]
 	public async Task<IActionResult> InviteDetails(int serverId, int id)
 	{
-		string userId = CurrentUserId!;
-		
 		ServerInvite? invite = await _inviteService.GetInviteAsync(id);
 		if (invite == null || invite.ServerId != serverId)
 		{
