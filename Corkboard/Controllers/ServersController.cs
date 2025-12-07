@@ -368,29 +368,18 @@ public class ServersController : BaseController
 	public async Task<IActionResult> CreateChannel(int serverId, [FromBody] CreateChannelRequest request)
 	{
 		if (!ModelState.IsValid)
-		{
 			return BadRequest(ModelState);
-		}
-
-		if (serverId != request.ServerId)
-		{
-			return BadRequest("Server ID mismatch");
-		}
 
 		// Verify server exists
 		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
-		{
 			return NotFound();
-		}
 
-		Channel channel = new Channel
+		Channel channel = await _channelService.CreateChannelAsync(new Channel
 		{
 			Name = request.Name,
-			ServerId = request.ServerId
-		};
-
-		channel = await _channelService.CreateChannelAsync(channel);
+			ServerId = serverId
+		});
 
 		return Ok(new { id = channel.Id, name = channel.Name, serverId = channel.ServerId });
 	}
