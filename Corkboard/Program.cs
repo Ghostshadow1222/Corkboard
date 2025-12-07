@@ -4,7 +4,6 @@ using Corkboard.Hubs;
 using Corkboard.Data.Services;
 using Corkboard.Authorization.Requirements;
 using Corkboard.Authorization.Handlers;
-using Corkboard.Authorization.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,21 +29,22 @@ builder.Services.AddScoped<IInviteService, InviteService>();
 // Register HTTP context accessor for authorization handlers
 builder.Services.AddHttpContextAccessor();
 
-// Register authorization helpers
-builder.Services.AddScoped<RouteDataHelper>();
-
 // Register authorization handlers
 builder.Services.AddScoped<IAuthorizationHandler, ServerMemberHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ServerModeratorHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ServerOwnerHandler>();
 
 // Configure authorization policies
 builder.Services.AddAuthorization(options =>
 {
 	options.AddPolicy("ServerMember", policy =>
-		policy.Requirements.Add(new ServerMemberRequirement()));
+		policy.Requirements.Add(new ServerMemberRequirement("serverId")));
 	
 	options.AddPolicy("ServerModerator", policy =>
-		policy.Requirements.Add(new ServerModeratorRequirement()));
+		policy.Requirements.Add(new ServerModeratorRequirement("serverId")));
+
+	options.AddPolicy("ServerOwner", policy =>
+		policy.Requirements.Add(new ServerOwnerRequirement("serverId")));
 });
 
 builder.Services.AddControllersWithViews();
