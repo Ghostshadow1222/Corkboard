@@ -6,6 +6,7 @@ using Corkboard.Authorization.Handlers;
 using Corkboard.Authorization.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
