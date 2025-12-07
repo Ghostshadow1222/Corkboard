@@ -54,6 +54,15 @@ public interface IServerService
 	Task<bool> IsUserModeratorOfServerAsync(int serverId, string userId);
 
 	/// <summary>
+	/// Determines whether the specified user is the owner of the server identified by the given ID.
+	/// </summary>
+	/// <param name="serverId">The unique identifier of the server to check ownership for.</param>
+	/// <param name="userId">The unique identifier of the user whose ownership status is to be verified. Cannot be null or empty.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the user is the
+	/// owner of the specified server; otherwise, <see langword="false"/>.</returns>
+	Task<bool> IsUserOwnerOfServerAsync(int serverId, string userId);
+
+	/// <summary>
     /// Determines whether the specified user is a member of the given server.
     /// </summary>
     /// <param name="serverId">The unique identifier of the server to check membership for.</param>
@@ -169,6 +178,15 @@ public class ServerService : IServerService
 			sm.ServerId == id
 			&& sm.UserId == userId
 			&& (sm.Role == RoleType.Moderator || sm.Role == RoleType.Owner));
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> IsUserOwnerOfServerAsync(int serverId, string userId)
+	{
+		return await _context.ServerMembers.AnyAsync(sm =>
+			sm.ServerId == serverId
+			&& sm.UserId == userId
+			&& sm.Role == RoleType.Owner);
 	}
 
 	/// <inheritdoc/>

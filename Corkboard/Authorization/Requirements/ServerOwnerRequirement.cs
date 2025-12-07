@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 namespace Corkboard.Authorization.Requirements;
 
 /// <summary>
-/// Authorization requirement to verify that a user is a member of a specific server.
+/// Authorization requirement to verify that a user is the owner of a specific server.
 /// The server ID can be extracted from route data using the specified route key.
 /// </summary>
-public class ServerMemberRequirement : IAuthorizationRequirement
+public class ServerOwnerRequirement : IAuthorizationRequirement
 {
 	/// <summary>
 	/// The route parameter name to extract the server ID from.
@@ -15,9 +15,9 @@ public class ServerMemberRequirement : IAuthorizationRequirement
 	public string ServerIdRouteKey { get; }
 
 	/// <summary>
-	/// Creates a new instance of <see cref="ServerMemberRequirement"/> with the provided route key.
+	/// Creates a new instance of <see cref="ServerOwnerRequirement"/> with the provided route key.
 	/// </summary>
-	public ServerMemberRequirement(string serverIdRouteKey)
+	public ServerOwnerRequirement(string serverIdRouteKey)
     {
         ServerIdRouteKey = serverIdRouteKey;
     }
