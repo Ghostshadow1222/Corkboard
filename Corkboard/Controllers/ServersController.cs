@@ -116,7 +116,7 @@ public class ServersController : BaseController
 	/// GET /Servers/Create
 	/// </summary>
 	/// <returns>View with server creation form.</returns>
-	[HttpGet]
+	[HttpGet("Servers/Create")]
 	public IActionResult Create()
 	{
 		// Return an empty view model to the Razor Page
@@ -365,7 +365,6 @@ public class ServersController : BaseController
 	/// <returns>JSON response with created channel details or error.</returns>
 	[HttpPost("Servers/{serverId}/Channels/Create")]
 	[Authorize(Policy = "ServerModerator")]
-	[IgnoreAntiforgeryToken]
 	public async Task<IActionResult> CreateChannel(int serverId, [FromBody] CreateChannelRequest request)
 	{
 		if (!ModelState.IsValid)
