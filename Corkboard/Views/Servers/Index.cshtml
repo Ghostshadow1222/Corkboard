@@ -1,29 +1,36 @@
 ﻿@model List<Corkboard.Models.Server>
-@{
+@if (!Model.Any())
+{
+    <h3 class="alert alert-info text-center">
+        You are not a member of any servers. Join or create a server to get started!
+    </h3>
+    <a asp-action="Create" class="btn btn-primary d-block mx-auto">Create Server</a>
 }
-
-<h1>Servers</h1>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Member Count</th>
-            <th>Last Message</th>
-            <td></td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var server in Model)
-        {
+else
+{
+    <h1>Servers</h1>
+    <table class="table">
+        <thead>
             <tr>
-                <td>@server.Name</td>
-                <td>@server.MemberCount</td>
-                <td>@server.LastMessageTimeStamp?.ToLocalTime()</td>
-                @* Link to view the full details of this invite *@
-                <td>
-                    <a asp-action="Channels" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-primary">Details</a>
-                </td>
+                <th>Name</th>
+                <th>Member Count</th>
+                <th>Last Message</th>
+                <td></td>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var server in Model)
+            {
+                <tr>
+                    <td>@server.Name</td>
+                    <td>@server.MemberCount</td>
+                    <td>@server.LastMessageTimeStamp?.ToLocalTime()</td>
+                    @* Link to view the full details of this invite *@
+                    <td>
+                        <a asp-action="Channels" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
