@@ -350,7 +350,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount>
 				Id = messageId++,
 				ChannelId = dataStructuresChannelId,
 				SenderId = authors[(i + 3) % authors.Length],
-				MessageContent = $"{i + 1}: {dsTopics[i % dsTopics.Length]}",
+				MessageContent = $"{dsTopics[i % dsTopics.Length]}",
 				CreatedAt = dsStart.AddMinutes(i * 7)
 			});
 		}
