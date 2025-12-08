@@ -43,6 +43,12 @@
                             <a asp-action="Channels" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-purple">
                                 View Details
                             </a>
+                            @if (ViewBag.CurrentUserId != null && ViewBag.CurrentUserId != server.OwnerId)
+                            {
+                                <a asp-action="Leave" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-danger ms-1">
+                                    Leave
+                                </a>
+                            }
                         </td>
                     </tr>
                 }

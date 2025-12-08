@@ -35,11 +35,18 @@
     @* Header showing server name and invite button if user has permission *@
     <div class="sb-server-header">
       <h2 class="sb-server-name" title="@Model.ServerName">@Model.ServerName</h2>
-      @* Show invite button for owners or moderators with invite permissions *@
-      @if (ViewBag.UserRole == RoleType.Owner || (ViewBag.UserRole == RoleType.Moderator && ViewBag.AllowModeratorInvites))
-      {
-        <a href="@Url.Action("Invites", "Servers", new { serverId = Model.ServerId })" class="btn btn-purple">Invite</a>
-      }
+      <div class="sb-server-actions">
+        @* Show invite button for owners or moderators with invite permissions *@
+        @if (ViewBag.UserRole == RoleType.Owner || (ViewBag.UserRole == RoleType.Moderator && ViewBag.AllowModeratorInvites))
+        {
+          <a href="@Url.Action("Invites", "Servers", new { serverId = Model.ServerId })" class="btn btn-purple">Invite</a>
+        }
+        @* Allow non-owners to leave the server *@
+        @if (!ViewBag.IsOwner)
+        {
+          <a href="@Url.Action("Leave", "Servers", new { serverId = Model.ServerId })" class="btn btn-outline-danger">Leave</a>
+        }
+      </div>
     </div>
     
     @* Section for listing channels *@

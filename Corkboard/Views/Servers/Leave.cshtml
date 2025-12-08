@@ -1,0 +1,18 @@
+@model Corkboard.Models.Server
+@{
+    ViewData["Title"] = "Leave Server";
+}
+
+<div class="section-spacing">
+    <h1 class="mb-3">Leave @Model.Name?</h1>
+
+    <div class="alert alert-warning">
+        <strong>Heads up:</strong> Leaving will remove your access to all channels and messages in this server.
+    </div>
+
+    <form asp-action="Leave" asp-controller="Servers" asp-route-serverId="@Model.Id" method="post" class="d-flex gap-2">
+        @Html.AntiForgeryToken()
+        <a asp-action="Channels" asp-controller="Servers" asp-route-serverId="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-danger">Leave Server</button>
+    </form>
+</div>

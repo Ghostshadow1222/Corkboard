@@ -85,6 +85,12 @@
   border-bottom: 1px solid var(--sb-border);
 }
 
+.sb-server-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .sb-server-name {
   font-size: 1rem;
   margin: 0;

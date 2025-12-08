@@ -57,6 +57,7 @@ public class ServersController : BaseController
 
 		string userId = CurrentUserId!;
 		List<Server> servers = await _serverService.GetServersForUserAsync(userId);
+		ViewBag.CurrentUserId = userId;
 
 		return View(servers);
 	}
@@ -270,6 +271,34 @@ public class ServersController : BaseController
 	}
 
 	/// <summary>
+	/// Shows confirmation page for leaving a server.
+	/// GET /Servers/{serverId}/Leave
+	/// </summary>
+	/// <param name="serverId">The server ID to leave.</param>
+	/// <returns>Leave confirmation view.</returns>
+	[HttpGet("Servers/{serverId}/Leave")]
+	[Authorize(Policy = "ServerMember")]
+	public async Task<IActionResult> Leave(int serverId)
+	{
+		string userId = CurrentUserId!;
+
+		// Prevent owner from leaving their own server
+		if (await IsUserOwnerAsync(serverId))
+		{
+			TempData["Error"] = "Server owners cannot leave their server. Delete the server instead.";
+			return RedirectToAction(nameof(Channels), new { serverId = serverId });
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		return View("Leave", server);
+	}
+
+	/// <summary>
 	/// Handles leaving a server.
 	/// POST /Servers/{serverId}/Leave
 	/// </summary>
@@ -278,7 +307,8 @@ public class ServersController : BaseController
 	[HttpPost("Servers/{serverId}/Leave")]
 	[ValidateAntiForgeryToken]
 	[Authorize(Policy = "ServerMember")]
-	public async Task<IActionResult> Leave(int serverId)
+	[ActionName("Leave")]
+	public async Task<IActionResult> LeaveConfirmed(int serverId)
 	{
 		string userId = CurrentUserId!;
 
