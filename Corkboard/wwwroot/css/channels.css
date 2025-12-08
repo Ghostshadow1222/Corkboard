@@ -90,6 +90,10 @@
   margin: 0;
   color: var(--sb-focus);
   font-weight: 600;
+  max-width: calc(100% - 90px); /* leave space for invite button */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Invite button styling */
@@ -174,6 +178,9 @@
   text-decoration: none;
   border-radius: 6px;
   font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sb-channel a:hover {
