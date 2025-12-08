@@ -214,17 +214,23 @@ public class ServersController : BaseController
 	}
 
 	[HttpGet("Servers/{serverId}/Join")]
-	public async Task<IActionResult> Join(int serverId)
+	[HttpGet("Servers/Join")]
+	public async Task<IActionResult> Join(int? serverId)
 	{
 		string userId = CurrentUserId!;
 
-		Server? server = await _serverService.GetServerAsync(serverId);
+		if (serverId == null)
+		{
+			return View(null);
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId.Value);
 		if (server == null)
 		{
 			return NotFound();
 		}
 
-		bool isMember = await _serverService.IsUserMemberOfServerAsync(serverId, userId);
+		bool isMember = await _serverService.IsUserMemberOfServerAsync(serverId.Value, userId);
 		if (isMember)
 		{
 			TempData["Info"] = "You are already a member of this server.";

@@ -35,6 +35,17 @@ public class InvitesController : BaseController
 	/// </summary>
 	/// <param name="code">The invite code to redeem.</param>
 	/// <returns>View with redemption details, NotFound if invalid, or Unauthorized if user-specific.</returns>
+	[HttpGet("/Invites/Redeem")]
+	public IActionResult RedeemByQuery([FromQuery(Name = "code")] string? inviteCode)
+	{
+		if (string.IsNullOrWhiteSpace(inviteCode))
+		{
+			return RedirectToAction(nameof(ServersController.Join), "Servers");
+		}
+
+		return RedirectToAction(nameof(Redeem), new { code = inviteCode });
+	}
+
 	[HttpGet("/Invites/Redeem/{code}")]
 	public async Task<IActionResult> Redeem(string code)
 	{
