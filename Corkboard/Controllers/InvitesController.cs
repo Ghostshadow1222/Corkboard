@@ -35,6 +35,17 @@ public class InvitesController : BaseController
 	/// </summary>
 	/// <param name="code">The invite code to redeem.</param>
 	/// <returns>View with redemption details, NotFound if invalid, or Unauthorized if user-specific.</returns>
+	[HttpGet("/Invites/Redeem")]
+	public IActionResult RedeemByQuery([FromQuery(Name = "code")] string? inviteCode)
+	{
+		if (string.IsNullOrWhiteSpace(inviteCode))
+		{
+			return RedirectToAction(nameof(ServersController.Join), "Servers");
+		}
+
+		return RedirectToAction(nameof(Redeem), new { code = inviteCode });
+	}
+
 	[HttpGet("/Invites/Redeem/{code}")]
 	public async Task<IActionResult> Redeem(string code)
 	{
@@ -49,8 +60,13 @@ public class InvitesController : BaseController
 
 		if (invite.InvitedUserId != null && invite.InvitedUserId != userId)
 		{
-			return Unauthorized();
+			return NotFound();
 		}
+
+		if (await _serverService.IsUserMemberOfServerAsync(invite.ServerId, userId))
+        {
+            ViewBag.AlreadyMember = true;
+        }
 
 		return View(invite);
 	}
@@ -70,29 +86,20 @@ public class InvitesController : BaseController
 
 		ServerInvite? invite = await _inviteService.GetInviteByCodeAsync(code);
 
-		if (invite == null)
+		if (invite == null || (invite.OneTimeUse && invite.IsUsed) || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
 		{
-			ModelState.AddModelError(string.Empty, "The invite could not be found.");
 			return NotFound();
-		}
-
-		if ((invite.OneTimeUse && invite.IsUsed) || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
-		{
-			ModelState.AddModelError(string.Empty, "This invite is expired or already used.");
-			return View(invite);
 		}
 
 		if (invite.InvitedUserId != null && invite.InvitedUserId != userId)
 		{
-			return Unauthorized();
+			return NotFound();
 		}
 
 		ServerMember? member = await _inviteService.RedeemInviteAsync(invite.Id, userId);
 		if (member == null)
 		{
-			ModelState.AddModelError(string.Empty, "Could not redeem the invite. You may already be a member or the invite is no longer valid.");
-			// Re-fetch to ensure view has current state
-			invite = await _inviteService.GetInviteByCodeAsync(code);
+			ViewBag.AlreadyMember = true;
 			return View(invite);
 		}
 

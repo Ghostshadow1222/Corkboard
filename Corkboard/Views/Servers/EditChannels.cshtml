@@ -4,47 +4,56 @@
     ViewData["Title"] = "Manage Channels";
 }
 
-@* List all of the channels for this server *@
-<h1>Manage Channels</h1>
-<h4>@ViewBag.ServerName</h4>
+<div class="section-spacing">
+    <h1>Manage Channels</h1>
+    <p class="lead text-muted">@ViewBag.ServerName</p>
 
-<p>
-    <a asp-action="CreateChannel" asp-route-serverId="@ViewBag.ServerId" class="btn btn-primary">Create New Channel</a>
-</p>
-
-@* Table showing all channels with edit and delete options *@
-<table class="table table-striped" style="margin-top:1rem;">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Created At (UTC)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @* Loop through and display each channel *@
-        @foreach (var channel in Model ?? Enumerable.Empty<Corkboard.Models.Channel>())
-        {
-            <tr>
-                <td>#@channel.Name</td>
-                <td>@(channel.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</td>
-                @* Links to edit and delete the channel *@
-                <td>
-                    <a asp-action="EditChannel" asp-route-serverId="@ViewBag.ServerId" asp-route-id="@channel.Id" class="btn btn-sm btn-outline-primary">Edit</a>
-                    <a asp-action="DeleteChannel" asp-route-serverId="@ViewBag.ServerId" asp-route-id="@channel.Id" class="btn btn-sm btn-outline-danger">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-info">
-        No channels found. Create one to get started!
+    <div class="mb-4">
+        <a asp-action="CreateChannel" asp-route-serverId="@ViewBag.ServerId" class="btn btn-purple">
+            <i class="bi bi-plus-circle"></i> Create New Channel
+        </a>
     </div>
-}
 
-<div>
-    <a asp-action="Channels" asp-route-serverId="@ViewBag.ServerId">Back to Server</a>
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-hover table-striped table-fixed">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Created At (UTC)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var channel in Model)
+                {
+                    <tr>
+                        <td class="truncate"><strong>#@channel.Name</strong></td>
+                        <td>@(channel.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</td>
+                        <td>
+                            <a asp-action="EditChannel" asp-route-serverId="@ViewBag.ServerId" asp-route-id="@channel.Id" class="btn btn-sm btn-outline-purple">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <a asp-action="DeleteChannel" asp-route-serverId="@ViewBag.ServerId" asp-route-id="@channel.Id" class="btn btn-sm btn-outline-danger ms-1">
+                                <i class="bi bi-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>No channels found!</h4>
+            <p>Create a channel to get started with conversations.</p>
+        </div>
+    }
+
+    <div class="mt-3">
+        <a asp-action="Channels" asp-route-serverId="@ViewBag.ServerId" class="btn btn-outline-purple">
+            <i class="bi bi-arrow-left"></i> Back to Server
+        </a>
+    </div>
 </div>

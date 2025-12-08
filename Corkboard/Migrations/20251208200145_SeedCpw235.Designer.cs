@@ -3,6 +3,7 @@ using System;
 using Corkboard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Corkboard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251208200145_SeedCpw235")]
+    partial class SeedCpw235
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -666,7 +669,7 @@ namespace Corkboard.Migrations
                             Id = 71,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 0, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Queues vs stacks: when would you pick each?",
+                            MessageContent = "1: Queues vs stacks: when would you pick each?",
                             SenderId = "seed-user-cpw-235-4"
                         },
                         new
@@ -674,7 +677,7 @@ namespace Corkboard.Migrations
                             Id = 72,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 7, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Binary search trees feel elegant.",
+                            MessageContent = "2: Binary search trees feel elegant.",
                             SenderId = "seed-user-cpw-235-5"
                         },
                         new
@@ -682,7 +685,7 @@ namespace Corkboard.Migrations
                             Id = 73,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 14, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Linked lists are great for constant-time inserts.",
+                            MessageContent = "3: Linked lists are great for constant-time inserts.",
                             SenderId = "seed-user-cpw-235-6"
                         },
                         new
@@ -690,7 +693,7 @@ namespace Corkboard.Migrations
                             Id = 74,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 21, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Hash sets saved me from duplicates.",
+                            MessageContent = "4: Hash sets saved me from duplicates.",
                             SenderId = "seed-user-cpw-235"
                         },
                         new
@@ -698,7 +701,7 @@ namespace Corkboard.Migrations
                             Id = 75,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 28, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Graph traversal with BFS felt natural.",
+                            MessageContent = "5: Graph traversal with BFS felt natural.",
                             SenderId = "seed-user-cpw-235-2"
                         },
                         new
@@ -706,7 +709,7 @@ namespace Corkboard.Migrations
                             Id = 76,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 35, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "DFS recursion depth is a gotcha.",
+                            MessageContent = "6: DFS recursion depth is a gotcha.",
                             SenderId = "seed-user-cpw-235-3"
                         },
                         new
@@ -714,7 +717,7 @@ namespace Corkboard.Migrations
                             Id = 77,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 42, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Big-O cheat sheet taped to my monitor.",
+                            MessageContent = "7: Big-O cheat sheet taped to my monitor.",
                             SenderId = "seed-user-cpw-235-4"
                         },
                         new
@@ -722,7 +725,7 @@ namespace Corkboard.Migrations
                             Id = 78,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 49, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Priority queues make scheduling easier.",
+                            MessageContent = "8: Priority queues make scheduling easier.",
                             SenderId = "seed-user-cpw-235-5"
                         },
                         new
@@ -730,7 +733,7 @@ namespace Corkboard.Migrations
                             Id = 79,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 11, 56, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Topological sort finally clicked!",
+                            MessageContent = "9: Topological sort finally clicked!",
                             SenderId = "seed-user-cpw-235-6"
                         },
                         new
@@ -738,7 +741,7 @@ namespace Corkboard.Migrations
                             Id = 80,
                             ChannelId = 4,
                             CreatedAt = new DateTime(2024, 11, 6, 12, 3, 0, 0, DateTimeKind.Utc),
-                            MessageContent = "Two-pointer patterns help in arrays.",
+                            MessageContent = "10: Two-pointer patterns help in arrays.",
                             SenderId = "seed-user-cpw-235"
                         });
                 });

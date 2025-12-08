@@ -57,6 +57,7 @@ public class ServersController : BaseController
 
 		string userId = CurrentUserId!;
 		List<Server> servers = await _serverService.GetServersForUserAsync(userId);
+		ViewBag.CurrentUserId = userId;
 
 		return View(servers);
 	}
@@ -96,6 +97,7 @@ public class ServersController : BaseController
 			Name = model.Name,
 			IconUrl = model.IconUrl,
 			Description = model.Description,
+			PrivacyLevel = model.PrivacyLevel,
 			OwnerId = userId
 		};
 
@@ -104,52 +106,6 @@ public class ServersController : BaseController
 
 		return RedirectToAction(nameof(Channels), new { serverId = server.Id });
 	}
-
-	/// <summary>
-	/// Displays information about a server before joining.
-	/// GET /Servers/Join/{id}
-	/// </summary>
-	/// <param name="serverId">The server ID to join.</param>
-	/// <returns>View with server information, or empty view if not found.</returns>
-	[HttpGet]
-	public async Task<IActionResult> Join(int serverId)
-	{
-		Server? server = await _serverService.GetServerAsync(serverId);
-		if (server == null)
-		{
-			return View();
-		}
-		return View(server);
-	}
-
-	/// <summary>
-	/// Handles the confirmation of joining a server.
-	/// POST /Servers/Join/{id}
-	/// </summary>
-	/// <param name="serverId">The server ID to join.</param>
-	/// <returns>Redirect to server details on success, or appropriate error response.</returns>
-	[HttpPost]
-	[ValidateAntiForgeryToken]
-	[ActionName("Join")]
-	public async Task<IActionResult> JoinConfirmed(int serverId)
-    {
-		string userId = CurrentUserId!;
-
-		Server? server = await _serverService.GetServerAsync(serverId);
-		if (server == null)
-		{
-			return RedirectToAction(nameof(Index));
-		}
-
-		if (server.PrivacyLevel != PrivacyLevel.Public)
-		{
-			return Unauthorized();
-		}
-
-		await _serverService.JoinServerAsync(serverId, userId);
-
-        return RedirectToAction(nameof(Channels), new { serverId = serverId });
-    }
 
 	/// <summary>
 	/// Displays the form for editing a server.
@@ -167,7 +123,7 @@ public class ServersController : BaseController
 			return NotFound();
 		}
 
-		ServerFormViewModel model = new ServerFormViewModel
+		ServerViewModel model = new ServerViewModel
 		{
 			Id = server.Id,
 			Name = server.Name,
@@ -189,9 +145,9 @@ public class ServersController : BaseController
 	[HttpPost("Servers/{serverId}/Edit")]
 	[ValidateAntiForgeryToken]
 	[Authorize(Policy = "ServerOwner")]
-	public async Task<IActionResult> Edit(int serverId, ServerFormViewModel model)
+	public async Task<IActionResult> Edit(int serverId, ServerViewModel model)
 	{
-		if (serverId != model.Id)
+		if (model.Id == null || serverId != model.Id.Value)
 		{
 			return BadRequest();
 		}
@@ -257,6 +213,97 @@ public class ServersController : BaseController
 		return RedirectToAction(nameof(Index));
 	}
 
+	[HttpGet("Servers/{serverId}/Join")]
+	[HttpGet("Servers/Join")]
+	public async Task<IActionResult> Join(int? serverId)
+	{
+		string userId = CurrentUserId!;
+
+		if (serverId == null)
+		{
+			return View(null);
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId.Value);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		bool isMember = await _serverService.IsUserMemberOfServerAsync(serverId.Value, userId);
+		if (isMember)
+		{
+			TempData["Info"] = "You are already a member of this server.";
+			return RedirectToAction(nameof(Channels), new { serverId = serverId });
+		}
+
+		if (server.PrivacyLevel != PrivacyLevel.Public)
+		{
+			TempData["Error"] = "This server is not public. You cannot join without an invite.";
+		}
+
+		return View(server);
+	}
+
+	[HttpPost("Servers/{serverId}/Join")]
+	[ValidateAntiForgeryToken]
+	[ActionName("Join")]
+	public async Task<IActionResult> JoinConfirmed(int serverId)
+	{
+		string userId = CurrentUserId!;
+
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		bool isMember = await _serverService.IsUserMemberOfServerAsync(serverId, userId);
+		if (isMember)
+		{
+			TempData["Info"] = "You are already a member of this server.";
+			return RedirectToAction(nameof(Channels), new { serverId = serverId });
+		}
+
+		if (server.PrivacyLevel != PrivacyLevel.Public)
+		{
+			TempData["Error"] = "This server is not public. You cannot join without an invite.";
+			return RedirectToAction(nameof(Join), new { serverId = serverId });
+		}
+
+		await _serverService.JoinServerAsync(serverId, userId);
+
+		return RedirectToAction(nameof(Channels), new { serverId = serverId });
+	}
+
+	/// <summary>
+	/// Shows confirmation page for leaving a server.
+	/// GET /Servers/{serverId}/Leave
+	/// </summary>
+	/// <param name="serverId">The server ID to leave.</param>
+	/// <returns>Leave confirmation view.</returns>
+	[HttpGet("Servers/{serverId}/Leave")]
+	[Authorize(Policy = "ServerMember")]
+	public async Task<IActionResult> Leave(int serverId)
+	{
+		string userId = CurrentUserId!;
+
+		// Prevent owner from leaving their own server
+		if (await IsUserOwnerAsync(serverId))
+		{
+			TempData["Error"] = "Server owners cannot leave their server. Delete the server instead.";
+			return RedirectToAction(nameof(Channels), new { serverId = serverId });
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		return View("Leave", server);
+	}
+
 	/// <summary>
 	/// Handles leaving a server.
 	/// POST /Servers/{serverId}/Leave
@@ -266,7 +313,8 @@ public class ServersController : BaseController
 	[HttpPost("Servers/{serverId}/Leave")]
 	[ValidateAntiForgeryToken]
 	[Authorize(Policy = "ServerMember")]
-	public async Task<IActionResult> Leave(int serverId)
+	[ActionName("Leave")]
+	public async Task<IActionResult> LeaveConfirmed(int serverId)
 	{
 		string userId = CurrentUserId!;
 

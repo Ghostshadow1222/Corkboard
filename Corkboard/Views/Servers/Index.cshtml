@@ -1,36 +1,71 @@
 ﻿@model List<Corkboard.Models.Server>
-@if (!Model.Any())
-{
-    <h3 class="alert alert-info text-center">
-        You are not a member of any servers. Join or create a server to get started!
-    </h3>
-    <a asp-action="Create" class="btn btn-primary d-block mx-auto">Create Server</a>
+@{
+    ViewData["Title"] = "Servers";
 }
-else
-{
+
+<div class="section-spacing">
     <h1>Servers</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Member Count</th>
-                <th>Last Message</th>
-                <td></td>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var server in Model)
-            {
+    
+    <div class="mb-4">
+        <a asp-action="Create" class="btn btn-purple">
+            <i class="bi bi-plus-circle"></i> Create New Server
+        </a>
+        <a asp-action="Join" class="btn btn-outline-purple ms-2">
+            <i class="bi bi-box-arrow-in-right"></i> Join Server
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <table class="table table-hover table-striped table-fixed">
+            <thead class="table-light">
                 <tr>
-                    <td>@server.Name</td>
-                    <td>@server.MemberCount</td>
-                    <td>@server.LastMessageTimeStamp?.ToLocalTime()</td>
-                    @* Link to view the full details of this invite *@
-                    <td>
-                        <a asp-action="Channels" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-primary">Details</a>
-                    </td>
+                    <th>Name</th>
+                    <th>Member Count</th>
+                    <th>Last Message</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var server in Model)
+                {
+                    <tr>
+                        <td class="truncate">
+                            <a asp-action="Channels" asp-route-serverId="@server.Id" class="fw-bold">
+                                @server.Name
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge badge-purple">@server.MemberCount members</span>
+                        </td>
+                        <td>@server.LastMessageTimeStamp?.ToLocalTime()</td>
+                        <td>
+                            <a asp-action="Channels" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-purple">
+                                View Details
+                            </a>
+                            @if (ViewBag.CurrentUserId != null && ViewBag.CurrentUserId != server.OwnerId)
+                            {
+                                <a asp-action="Leave" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-danger ms-1">
+                                    Leave
+                                </a>
+                            }
+                            else if (ViewBag.CurrentUserId == server.OwnerId)
+                            {
+                                <a asp-action="Edit" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-secondary ms-1">
+                                    Edit
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info mt-4">
+            <h4>No servers yet!</h4>
+            <p>You haven't joined any servers. Create a new server or join an existing one to get started.</p>
+        </div>
+    }
+</div>

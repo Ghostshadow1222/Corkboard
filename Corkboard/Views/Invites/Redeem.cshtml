@@ -4,81 +4,42 @@
     ViewData["Title"] = "Redeem Invite";
 }
 
-@* Custom styles for the invite redemption page *@
-<style>
-    .redeem-page {
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
+@if (ViewBag.AlreadyMember == true)
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle-fill"></i> You are already a member of this server.
+    </div>
+}
 
-    .redeem-card {
-        width: 100%;
-        max-width: 520px;
-        background: #fff;
-        border: 1px solid #e1e1e1;
-        border-radius: 8px;
-        padding: 1.75rem;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.04);
-        text-align: center;
-    }
+<div class="section-spacing d-flex justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card card-purple shadow-sm text-center">
+            <div class="card-header">
+                <h3 class="mb-0 text-white">Join Server</h3>
+            </div>
+            <div class="card-body py-4">
+                <h2 class="mb-2">@Model.Server.Name</h2>
+                <p class="text-muted">@Model.Server.Description</p>
 
-    .redeem-card h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.5rem;
-    }
+                <div class="mb-3">
+                    <div>Invite Code: <strong>@Model.InviteCode</strong></div>
+                    @if (Model.ExpiresAt != null)
+                    {
+                        <div>Expires: @Model.ExpiresAt?.ToLocalTime().ToString("g")</div>
+                    }
+                    else
+                    {
+                        <div>Expires: Never</div>
+                    }
+                </div>
 
-    .redeem-card p.description {
-        color: #555;
-        margin-bottom: 1.25rem;
-    }
-
-    .invite-meta {
-        font-size: 0.9rem;
-        color: #666;
-        margin-bottom: 1rem;
-    }
-
-    .join-btn {
-        display: inline-block;
-        padding: 0.6rem 1.1rem;
-        font-size: 1rem;
-        border-radius: 6px;
-        border: none;
-        background-color: #0078d4;
-        color: #fff;
-        cursor: pointer;
-    }
-
-    .join-btn:hover {
-        background-color: #0063b1;
-    }
-</style>
-
-@* Centered card displaying the server and join button *@
-<div class="redeem-page">
-    @* Card showing server info that the user can join *@
-    <div class="redeem-card">
-        @* Display the server name and description *@
-        <h2>@Model.Server.Name</h2>
-
-        <p class="description">@Model.Server.Description</p>
-
-        @* Show the invite code and expiration details *@
-        <div class="invite-meta">
-            <div>Invite Code: <strong>@Model.InviteCode</strong></div>
-            @if (Model.ExpiresAt != null)
-            {
-                <div>Expires: @Model.ExpiresAt?.ToLocalTime().ToString("g")</div>
-            }
+                <form asp-action="Redeem" asp-controller="Invites" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-purple btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Join
+                    </button>
+                </form>
+            </div>
         </div>
-
-        @* Form to accept the invite and join the server *@
-        <form asp-action="Redeem" asp-controller="Invites" asp-route-id="@Model.Id" method="post">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="join-btn">Join</button>
-        </form>
     </div>
 </div>

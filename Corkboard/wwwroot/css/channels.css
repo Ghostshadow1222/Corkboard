@@ -85,11 +85,21 @@
   border-bottom: 1px solid var(--sb-border);
 }
 
+.sb-server-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .sb-server-name {
   font-size: 1rem;
   margin: 0;
   color: var(--sb-focus);
   font-weight: 600;
+  max-width: calc(100% - 90px); /* leave space for invite button */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Invite button styling */
@@ -174,6 +184,9 @@
   text-decoration: none;
   border-radius: 6px;
   font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sb-channel a:hover {
@@ -340,6 +353,23 @@
   color: var(--sb-link);
   font-weight: 600;
   margin-right: 8px;
+}
+
+.sb-message-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sb-message-time {
+  color: var(--sb-muted);
+  font-size: 0.85rem;
+}
+
+.sb-message-text {
+  display: block;
+  margin-top: 4px;
+  color: var(--sb-focus);
 }
 
 /* Message form at bottom */

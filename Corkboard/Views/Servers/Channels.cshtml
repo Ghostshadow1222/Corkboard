@@ -34,12 +34,19 @@
   <nav class="sb-channels-sidebar" aria-label="Channels">
     @* Header showing server name and invite button if user has permission *@
     <div class="sb-server-header">
-      <h3 class="sb-server-name">@Model.ServerName</h3>
-      @* Show invite button for owners or moderators with invite permissions *@
-      @if (ViewBag.UserRole == RoleType.Owner || (ViewBag.UserRole == RoleType.Moderator && ViewBag.AllowModeratorInvites))
-      {
-        <a href="@Url.Action("Invites", "Servers", new { serverId = Model.ServerId })" class="sb-invite-btn">Invite</a>
-      }
+      <h2 class="sb-server-name" title="@Model.ServerName">@Model.ServerName</h2>
+      <div class="sb-server-actions">
+        @* Show invite button for owners or moderators with invite permissions *@
+        @if (ViewBag.UserRole == RoleType.Owner || (ViewBag.UserRole == RoleType.Moderator && ViewBag.AllowModeratorInvites))
+        {
+          <a href="@Url.Action("Invites", "Servers", new { serverId = Model.ServerId })" class="btn btn-purple">Invite</a>
+        }
+        @* Allow non-owners to leave the server *@
+        @if (!ViewBag.IsOwner)
+        {
+          <a href="@Url.Action("Leave", "Servers", new { serverId = Model.ServerId })" class="btn btn-outline-danger">Leave</a>
+        }
+      </div>
     </div>
     
     @* Section for listing channels *@
@@ -59,7 +66,7 @@
           @* Mark the active channel *@
           string active = ch.Id == Model.SelectedChannelId ? "active" : "";
           <li class="sb-channel @active">
-            <a href="@Url.Action("Channels", "Servers", new { serverId = Model.ServerId, channelId = ch.Id })">
+            <a href="@Url.Action("Channels", "Servers", new { serverId = Model.ServerId, channelId = ch.Id })" title="@ch.Name">
               # @ch.Name
             </a>
           </li>

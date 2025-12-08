@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Join Server";
     bool canJoin = Model != null && Model.PrivacyLevel == PrivacyLevel.Public;
+    bool noServerSpecified = Model == null;
 }
 
 <div class="container mt-5">
@@ -15,9 +16,26 @@
                         <div class="text-success mb-4">
                             <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
                         </div>
-                        <h3 class="card-title mb-3">You can join this server!</h3>
+                        <h3 class="card-title mb-3">Join this server?</h3>
                         <p class="text-muted mb-4">@Model?.Name</p>
-                        <button type="button" class="btn btn-primary btn-lg">Join</button>
+                        <form asp-action="Join" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-purple btn-lg w-100">
+                                <i class="bi bi-box-arrow-in-right"></i> Join Server
+                            </button>
+                        </form>
+                    }
+                    else if (noServerSpecified)
+                    {
+                        <form asp-action="Redeem" asp-controller="Invites" method="get">
+                            <div class="form-group mb-4">
+                                <label for="inviteCode" class="form-label">Enter Invite Code</label>
+                                <input type="text" class="form-control" id="inviteCode" name="code" placeholder="Invite Code" required />
+                            </div>
+                            <button type="submit" class="btn btn-purple btn-lg w-100">
+                                <i class="bi bi-arrow-right-circle"></i> Redeem Invite
+                            </button>
+                        </form>
                     }
                     else
                     {

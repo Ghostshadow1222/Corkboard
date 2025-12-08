@@ -7,13 +7,19 @@
   <div id="messages" class="messages">
     @foreach (MessageDto message in Model.Messages)
     {
-      <p data-timestamp="@message.Timestamp.ToString("o")"><strong>@message.SenderUsername</strong>: @message.Text</p>
+      <p class="sb-message" data-timestamp="@message.Timestamp.ToString("o")">
+        <span class="sb-message-header">
+          <strong class="sb-message-user">@message.SenderUsername</strong>
+          <span class="sb-message-time">@message.Timestamp.ToLocalTime().ToString("MMM d, h:mm tt")</span>
+        </span>
+        <span class="sb-message-text">@message.Text</span>
+      </p>
     }
   </div>
 
   <form id="message-form" onsubmit="return false;">
-    <input id="message-input" type="text" />
-    <button id="send-btn" type="button">Send</button>
+    <input id="message-input" type="text" class="sb-form-input" placeholder="Type a message" />
+    <button id="send-btn" type="button" class="sb-btn sb-btn-primary">Send</button>
   </form>
 </div>
 
