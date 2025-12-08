@@ -52,6 +52,11 @@ public class InvitesController : BaseController
 			return Unauthorized();
 		}
 
+		if (await _serverService.IsUserMemberOfServerAsync(invite.ServerId, userId))
+        {
+            ViewBag.AlreadyMember = true;
+        }
+
 		return View(invite);
 	}
 
@@ -76,10 +81,10 @@ public class InvitesController : BaseController
 			return NotFound();
 		}
 
-		if ((invite.OneTimeUse && invite.IsUsed) || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
+		if ((invite.OneTimeUse && invite.IsUsed) || invite == null || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
 		{
-			ModelState.AddModelError(string.Empty, "This invite is expired or already used.");
-			return View(invite);
+			ModelState.AddModelError(string.Empty, "The invite could not be found.");
+			return NotFound();
 		}
 
 		if (invite.InvitedUserId != null && invite.InvitedUserId != userId)
@@ -90,9 +95,7 @@ public class InvitesController : BaseController
 		ServerMember? member = await _inviteService.RedeemInviteAsync(invite.Id, userId);
 		if (member == null)
 		{
-			ModelState.AddModelError(string.Empty, "Could not redeem the invite. You may already be a member or the invite is no longer valid.");
-			// Re-fetch to ensure view has current state
-			invite = await _inviteService.GetInviteByCodeAsync(code);
+			ViewBag.AlreadyMember = true;
 			return View(invite);
 		}
 
