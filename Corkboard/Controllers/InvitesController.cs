@@ -60,7 +60,7 @@ public class InvitesController : BaseController
 
 		if (invite.InvitedUserId != null && invite.InvitedUserId != userId)
 		{
-			return Unauthorized();
+			return NotFound();
 		}
 
 		if (await _serverService.IsUserMemberOfServerAsync(invite.ServerId, userId))
@@ -86,21 +86,14 @@ public class InvitesController : BaseController
 
 		ServerInvite? invite = await _inviteService.GetInviteByCodeAsync(code);
 
-		if (invite == null)
+		if (invite == null || (invite.OneTimeUse && invite.IsUsed) || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
 		{
-			ModelState.AddModelError(string.Empty, "The invite could not be found.");
-			return NotFound();
-		}
-
-		if ((invite.OneTimeUse && invite.IsUsed) || invite == null || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow))
-		{
-			ModelState.AddModelError(string.Empty, "The invite could not be found.");
 			return NotFound();
 		}
 
 		if (invite.InvitedUserId != null && invite.InvitedUserId != userId)
 		{
-			return Unauthorized();
+			return NotFound();
 		}
 
 		ServerMember? member = await _inviteService.RedeemInviteAsync(invite.Id, userId);
