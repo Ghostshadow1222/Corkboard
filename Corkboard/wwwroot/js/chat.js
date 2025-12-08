@@ -17,6 +17,67 @@ let isLoadingMessages = false;
 // Flag to track if there are more messages to load
 let hasMoreMessages = true;
 
+// Format a UTC timestamp string into a friendly local time
+function formatTimestampToLocal(utcString) {
+    const date = new Date(utcString);
+    if (isNaN(date)) {
+        return "";
+    }
+
+    return date.toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+    });
+}
+
+// Build a message element with username, timestamp, and text
+function buildMessageElement(messageDto) {
+    const p = document.createElement("p");
+    p.classList.add("sb-message");
+
+    const timestamp = messageDto.timestamp;
+    p.setAttribute("data-timestamp", timestamp);
+
+    const header = document.createElement("span");
+    header.className = "sb-message-header";
+
+    const user = document.createElement("strong");
+    user.className = "sb-message-user";
+    user.textContent = messageDto.senderUsername;
+
+    const time = document.createElement("span");
+    time.className = "sb-message-time";
+    time.textContent = formatTimestampToLocal(timestamp);
+
+    header.appendChild(user);
+    header.appendChild(time);
+
+    const body = document.createElement("span");
+    body.className = "sb-message-text";
+    body.textContent = messageDto.text;
+
+    p.appendChild(header);
+    p.appendChild(body);
+
+    return p;
+}
+
+// Ensure any server-rendered messages show local timestamps
+function hydrateExistingMessages() {
+    const messagesDiv = document.getElementById("messages");
+    if (!messagesDiv) return;
+
+    messagesDiv.querySelectorAll("p[data-timestamp]").forEach(function (messageEl) {
+        const ts = messageEl.getAttribute("data-timestamp");
+        const timeEl = messageEl.querySelector(".sb-message-time");
+        if (ts && timeEl) {
+            timeEl.textContent = formatTimestampToLocal(ts);
+        }
+    });
+}
+
 // Start the connection.
 async function start() {
     const container = document.getElementById("chat-container");
@@ -41,6 +102,7 @@ async function start() {
         await connection.start();
         await connection.invoke("JoinChannel", currentChannelId);
         document.getElementById("send-btn").disabled = false;
+        hydrateExistingMessages();
     } catch (err) {
         console.error(err.toString());
         alert("Failed to connect to chat. Please refresh the page.");
@@ -68,13 +130,11 @@ start().then(async function () {
 // Receive message from the hub
 connection.on("ReceiveMessage", function (messageDto) {
     var messagesDiv = document.getElementById("messages");
-    var p = document.createElement("p");
-    p.setAttribute("data-timestamp", messageDto.timestamp);
-    messagesDiv.appendChild(p);
-    
-    // SignalR / ASP.NET Core serializes to camelCase by default on the client
-    p.innerHTML = "<strong>" + messageDto.senderUsername + "</strong>: " + messageDto.text;
-    
+    if (!messagesDiv) return;
+
+    var messageElement = buildMessageElement(messageDto);
+    messagesDiv.appendChild(messageElement);
+
     // Auto-scroll to bottom when new message arrives
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
@@ -140,10 +200,8 @@ async function loadMoreMessages() {
         if (olderMessages && olderMessages.length > 0) {
             // Prepend messages to the top
             olderMessages.forEach(function(messageDto) {
-                var p = document.createElement("p");
-                p.setAttribute("data-timestamp", messageDto.timestamp);
-                p.innerHTML = "<strong>" + messageDto.senderUsername + "</strong>: " + messageDto.text;
-                messagesDiv.insertBefore(p, messagesDiv.firstChild);
+                var messageElement = buildMessageElement(messageDto);
+                messagesDiv.insertBefore(messageElement, messagesDiv.firstChild);
             });
             
             // Update oldest timestamp

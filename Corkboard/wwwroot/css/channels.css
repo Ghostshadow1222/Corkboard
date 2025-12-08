@@ -355,6 +355,23 @@
   margin-right: 8px;
 }
 
+.sb-message-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sb-message-time {
+  color: var(--sb-muted);
+  font-size: 0.85rem;
+}
+
+.sb-message-text {
+  display: block;
+  margin-top: 4px;
+  color: var(--sb-focus);
+}
+
 /* Message form at bottom */
 #message-form {
   padding: 16px;
