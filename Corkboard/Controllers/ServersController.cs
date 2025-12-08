@@ -20,6 +20,8 @@ public class ServersController : BaseController
 	private readonly IInviteService _inviteService;
 	private readonly IChannelService _channelService;
 
+	#region Constructor
+
 	/// <summary>
 	/// Creates a new instance of <see cref="ServersController"/>.
 	/// </summary>
@@ -36,6 +38,10 @@ public class ServersController : BaseController
 		_channelService = channelService;
 	}
 
+	#endregion
+
+	#region Servers
+
 	/// <summary>
 	/// Displays a list of all servers the current user is a member of.
 	/// GET /Servers
@@ -46,69 +52,13 @@ public class ServersController : BaseController
 	{
 		if (serverId != null) 
 		{
-			RedirectToAction(nameof(Channels), new { serverId = serverId} );
+			return RedirectToAction(nameof(Channels), new { serverId = serverId} );
 		}
 
 		string userId = CurrentUserId!;
-
 		List<Server> servers = await _serverService.GetServersForUserAsync(userId);
 
 		return View(servers);
-	}
-
-	/// <summary>
-	/// Displays the main chat interface for a specific server and channel.
-	/// GET /Servers/{serverId}/Channels/{channelId}
-	/// </summary>
-	/// <param name="serverId">The server ID</param>
-	/// <param name="channelId">The channel ID within the server.</param>
-	/// <returns>View with chat interface for the specified server and channel.</returns>
-	[HttpGet("Servers/{serverId}/Channels/{channelId?}")]
-	[Authorize(Policy = "ServerMember")]
-	public async Task<IActionResult> Channels(int serverId, int? channelId)
-	{
-		string userId = CurrentUserId!;
-
-		Server? server = await _serverService.GetServerAsync(serverId);
-		if (server == null)
-		{
-			return NotFound();
-		}
-
-		List<ChannelViewModel> channels = 
-			(await _channelService.GetChannelsForServerAsync(serverId))
-			.Select(c => new ChannelViewModel { Id = c.Id, Name = c.Name })
-			.ToList();
-
-		int SelectedChannelId = channelId ?? channels.FirstOrDefault()?.Id ?? _channelService
-			.GetChannelsForServerAsync(serverId)
-			.Result
-			.First()
-			.Id;
-
-		List<ServerListItemViewModel> userServers = 
-			(await _serverService.GetServersForUserAsync(userId))
-			.Select(s => new ServerListItemViewModel { Id = s.Id, Name = s.Name, IconUrl = s.IconUrl })
-			.ToList();
-
-		List<MessageDto> messages = await _messageService.GetMessagesForChannelAsync(SelectedChannelId, 50);
-
-		ServerChannelsViewModel model = new ServerChannelsViewModel
-		{
-			ServerId = server.Id,
-			ServerName = server.Name,
-			ChannelId = SelectedChannelId,
-			Channels = channels,
-			UserServers = userServers,
-			Messages = messages
-		};
-
-		ViewBag.UserRole = await GetUserRoleInServerAsync(serverId);
-		ViewBag.IsModerator = await IsUserModeratorOrOwnerAsync(serverId);
-		ViewBag.IsOwner = await IsUserOwnerAsync(serverId);
-		ViewBag.AllowModeratorInvites = server.PrivacyLevel == PrivacyLevel.ModeratorInvitePrivate;
-		
-		return View(model);
 	}
 
 	/// <summary>
@@ -200,6 +150,452 @@ public class ServersController : BaseController
 
         return RedirectToAction(nameof(Channels), new { serverId = serverId });
     }
+
+	/// <summary>
+	/// Displays the form for editing a server.
+	/// GET /Servers/{serverId}/Edit
+	/// </summary>
+	/// <param name="serverId">The server ID to edit.</param>
+	/// <returns>View with server edit form.</returns>
+	[HttpGet("Servers/{serverId}/Edit")]
+	[Authorize(Policy = "ServerOwner")]
+	public async Task<IActionResult> Edit(int serverId)
+	{
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		ServerFormViewModel model = new ServerFormViewModel
+		{
+			Id = server.Id,
+			Name = server.Name,
+			Description = server.Description,
+			IconUrl = server.IconUrl,
+			PrivacyLevel = server.PrivacyLevel
+		};
+
+		return View(model);
+	}
+
+	/// <summary>
+	/// Handles the submission of server edits.
+	/// POST /Servers/{serverId}/Edit
+	/// </summary>
+	/// <param name="serverId">The server ID to edit.</param>
+	/// <param name="model">The server form view model with updated details.</param>
+	/// <returns>Redirect to server channels on success, or view with errors on failure.</returns>
+	[HttpPost("Servers/{serverId}/Edit")]
+	[ValidateAntiForgeryToken]
+	[Authorize(Policy = "ServerOwner")]
+	public async Task<IActionResult> Edit(int serverId, ServerFormViewModel model)
+	{
+		if (serverId != model.Id)
+		{
+			return BadRequest();
+		}
+
+		if (!ModelState.IsValid)
+		{
+			return View(model);
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		server.Name = model.Name;
+		server.Description = model.Description;
+		server.IconUrl = model.IconUrl;
+		server.PrivacyLevel = model.PrivacyLevel;
+
+		await _serverService.UpdateServerAsync(server);
+
+		return RedirectToAction(nameof(Channels), new { serverId = serverId });
+	}
+
+	/// <summary>
+	/// Displays the confirmation page for deleting a server.
+	/// GET /Servers/{serverId}/Delete
+	/// </summary>
+	/// <param name="serverId">The server ID to delete.</param>
+	/// <returns>View with server deletion confirmation.</returns>
+	[HttpGet("Servers/{serverId}/Delete")]
+	[Authorize(Policy = "ServerOwner")]
+	public async Task<IActionResult> Delete(int serverId)
+	{
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		return View(server);
+	}
+
+	/// <summary>
+	/// Handles the confirmation of deleting a server.
+	/// POST /Servers/{serverId}/Delete
+	/// </summary>
+	/// <param name="serverId">The server ID to delete.</param>
+	/// <returns>Redirect to server list on success.</returns>
+	[HttpPost("Servers/{serverId}/Delete")]
+	[ValidateAntiForgeryToken]
+	[ActionName("Delete")]
+	[Authorize(Policy = "ServerOwner")]
+	public async Task<IActionResult> DeleteConfirmed(int serverId)
+	{
+		bool deleted = await _serverService.DeleteServerAsync(serverId);
+		if (!deleted)
+		{
+			return NotFound();
+		}
+
+		return RedirectToAction(nameof(Index));
+	}
+
+	/// <summary>
+	/// Handles leaving a server.
+	/// POST /Servers/{serverId}/Leave
+	/// </summary>
+	/// <param name="serverId">The server ID to leave.</param>
+	/// <returns>Redirect to server list on success.</returns>
+	[HttpPost("Servers/{serverId}/Leave")]
+	[ValidateAntiForgeryToken]
+	[Authorize(Policy = "ServerMember")]
+	public async Task<IActionResult> Leave(int serverId)
+	{
+		string userId = CurrentUserId!;
+
+		// Prevent owner from leaving their own server
+		if (await IsUserOwnerAsync(serverId))
+		{
+			TempData["Error"] = "Server owners cannot leave their server. Delete the server instead.";
+			return RedirectToAction(nameof(Channels), new { serverId = serverId });
+		}
+
+		bool left = await _serverService.LeaveServerAsync(serverId, userId);
+		if (!left)
+		{
+			return NotFound();
+		}
+
+		return RedirectToAction(nameof(Index));
+	}
+
+	#endregion
+
+	#region Channels
+
+	/// <summary>
+	/// Displays the main chat interface for a specific server and channel.
+	/// GET /Servers/{serverId}/Channels/{channelId}
+	/// </summary>
+	/// <param name="serverId">The server ID</param>
+	/// <param name="channelId">The channel ID within the server.</param>
+	/// <returns>View with chat interface for the specified server and channel.</returns>
+	[HttpGet("Servers/{serverId?}/Channels/{channelId?}")]
+	[Authorize(Policy = "ServerMember")]
+	public async Task<IActionResult> Channels(int? serverId, int? channelId)
+	{
+		string userId = CurrentUserId!;
+
+		if (serverId == null)
+		{
+			serverId = (await _serverService.GetServersForUserAsync(userId)).FirstOrDefault()?.Id;
+		}
+
+		if (serverId == null)
+		{
+			return RedirectToAction(nameof(Index));
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId.Value);
+		if (server == null)
+		{
+			return NotFound();
+		}
+		
+		// get list of channels for server
+		List<ChannelViewModel> channels = 
+		(await _channelService.GetChannelsForServerAsync(serverId.Value))
+		.Select(c => new ChannelViewModel { Id = c.Id, Name = c.Name })
+		.ToList();		
+		
+		// Determine selected channel
+		int? SelectedChannelId = channelId;
+		if (SelectedChannelId == null && channels.Count > 0)
+		{
+			SelectedChannelId = channels[0].Id;
+		}
+
+		List<ServerListItemViewModel> userServers = 
+			(await _serverService.GetServersForUserAsync(userId))
+			.Select(s => new ServerListItemViewModel 
+			{ 
+				Id = s.Id,
+				Name = s.Name,
+				IconUrl = s.IconUrl
+			})
+			.ToList();
+
+		List<MessageDto> messages = new List<MessageDto>();
+		if (SelectedChannelId != null)
+		{
+			messages = 
+			(await _messageService.GetMessagesForChannelAsync((int)SelectedChannelId, 50))
+			.Select(m => new MessageDto
+            {
+				Id = m.Id,
+				Text = m.MessageContent,
+				SenderUsername = m.Sender?.UserName ?? "Unknown",
+				Timestamp = m.CreatedAt
+			})
+			.ToList();
+		}
+
+		ServerChannelsViewModel model = new ServerChannelsViewModel
+		{
+			ServerId = server.Id,
+			ServerName = server.Name,
+			SelectedChannelId = SelectedChannelId,
+			Channels = channels,
+			UserServers = userServers,
+			Messages = messages
+		};
+
+		ViewBag.UserRole = await GetUserRoleInServerAsync(serverId.Value);
+		ViewBag.IsModerator = await IsUserModeratorOrOwnerAsync(serverId.Value);
+		ViewBag.IsOwner = await IsUserOwnerAsync(serverId.Value);
+		ViewBag.AllowModeratorInvites = server.PrivacyLevel == PrivacyLevel.ModeratorInvitePrivate;
+		
+		return View(model);
+	}
+
+	/// <summary>
+	/// Displays a table of all channels in a server with edit and delete links.
+	/// GET /Servers/{serverId}/Channels/Edit
+	/// </summary>
+	/// <param name="serverId">The server ID to view channels for.</param>
+	/// <returns>View with list of channels and management options.</returns>
+	[HttpGet("Servers/{serverId}/Channels/Edit")]
+	[ActionName("EditChannels")]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> EditChannels(int serverId)
+	{
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		List<Channel> channels = await _channelService.GetChannelsForServerAsync(serverId);
+
+		ViewBag.ServerName = server.Name;
+		ViewBag.ServerId = serverId;
+
+		return View(channels);
+	}
+
+	/// <summary>
+	/// Displays the form for creating a new channel in a server.
+	/// GET /Servers/{serverId}/Channels/Create
+	/// </summary>
+	/// <param name="serverId">The server ID where the channel will be created.</param>
+	/// <returns>View with channel creation form.</returns>
+	[HttpGet("Servers/{serverId}/Channels/Create")]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> CreateChannel(int serverId)
+	{
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		ViewBag.ServerName = server.Name;
+
+		return View(new ChannelFormViewModel { ServerId = serverId });
+	}
+
+	/// <summary>
+	/// Handles the submission of a new channel.
+	/// POST /Servers/{serverId}/Channels/Create
+	/// </summary>
+	/// <param name="serverId">The server ID where the channel will be created.</param>
+	/// <param name="model">The channel form view model with creation details.</param>
+	/// <returns>Redirect to server channels on success, or view with errors on failure.</returns>
+	[HttpPost("Servers/{serverId}/Channels/Create")]
+	[ValidateAntiForgeryToken]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> CreateChannel(int serverId, ChannelFormViewModel model)
+	{
+		if (serverId != model.ServerId)
+		{
+			return BadRequest();
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		if (!ModelState.IsValid)
+		{
+			ViewBag.ServerName = server.Name;
+			return View(model);
+		}
+
+		Channel channel = await _channelService.CreateChannelAsync(new Channel
+		{
+			Name = model.Name,
+			ServerId = serverId
+		});
+
+		return RedirectToAction(nameof(Channels), new { serverId = serverId });
+	}
+
+	/// <summary>
+	/// Displays the form for editing a channel.
+	/// GET /Servers/{serverId}/Channels/{id}/Edit
+	/// </summary>
+	/// <param name="serverId">The server ID where the channel belongs.</param>
+	/// <param name="id">The channel ID to edit.</param>
+	/// <returns>View with channel edit form.</returns>
+	[HttpGet("Servers/{serverId}/Channels/{id}/Edit")]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> EditChannel(int serverId, int id)
+	{
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		Channel? channel = await _channelService.GetChannelAsync(id);
+		if (channel == null || channel.ServerId != serverId)
+		{
+			return NotFound();
+		}
+
+		ViewBag.ServerName = server.Name;
+
+		ChannelFormViewModel model = new ChannelFormViewModel
+		{
+			Id = channel.Id,
+			ServerId = channel.ServerId,
+			Name = channel.Name
+		};
+
+		return View(model);
+	}
+
+	/// <summary>
+	/// Handles the submission of channel edits.
+	/// POST /Servers/{serverId}/Channels/{id}/Edit
+	/// </summary>
+	/// <param name="serverId">The server ID where the channel belongs.</param>
+	/// <param name="id">The channel ID to edit.</param>
+	/// <param name="model">The channel form view model with updated details.</param>
+	/// <returns>Redirect to server channels on success, or view with errors on failure.</returns>
+	[HttpPost("Servers/{serverId}/Channels/{id}/Edit")]
+	[ValidateAntiForgeryToken]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> EditChannel(int serverId, int id, ChannelFormViewModel model)
+	{
+		if (id != model.Id || serverId != model.ServerId)
+		{
+			return BadRequest();
+		}
+
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		if (!ModelState.IsValid)
+		{
+			ViewBag.ServerName = server.Name;
+			return View(model);
+		}
+
+		Channel? channel = await _channelService.GetChannelAsync(id);
+		if (channel == null || channel.ServerId != serverId)
+		{
+			return NotFound();
+		}
+
+		channel.Name = model.Name;
+
+		await _channelService.UpdateChannelAsync(channel);
+
+		return RedirectToAction(nameof(Channels), new { serverId = serverId });
+	}
+
+	/// <summary>
+	/// Displays the confirmation page for deleting a channel.
+	/// GET /Servers/{serverId}/Channels/{id}/Delete
+	/// </summary>
+	/// <param name="serverId">The server ID where the channel belongs.</param>
+	/// <param name="id">The channel ID to delete.</param>
+	/// <returns>View with channel deletion confirmation.</returns>
+	[HttpGet("Servers/{serverId}/Channels/{id}/Delete")]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> DeleteChannel(int serverId, int id)
+	{
+		Server? server = await _serverService.GetServerAsync(serverId);
+		if (server == null)
+		{
+			return NotFound();
+		}
+
+		Channel? channel = await _channelService.GetChannelAsync(id);
+		if (channel == null || channel.ServerId != serverId)
+		{
+			return NotFound();
+		}
+
+		ViewBag.ServerName = server.Name;
+
+		return View(channel);
+	}
+
+	/// <summary>
+	/// Handles the confirmation of deleting a channel.
+	/// POST /Servers/{serverId}/Channels/{id}/Delete
+	/// </summary>
+	/// <param name="serverId">The server ID where the channel belongs.</param>
+	/// <param name="id">The channel ID to delete.</param>
+	/// <returns>Redirect to server channels on success.</returns>
+	[HttpPost("Servers/{serverId}/Channels/{id}/Delete")]
+	[ValidateAntiForgeryToken]
+	[ActionName("DeleteChannel")]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> DeleteChannelConfirmed(int serverId, int id)
+	{
+		Channel? channel = await _channelService.GetChannelAsync(id);
+		if (channel == null || channel.ServerId != serverId)
+		{
+			return NotFound();
+		}
+
+		bool deleted = await _channelService.DeleteChannelAsync(id);
+		if (!deleted)
+		{
+			return NotFound();
+		}
+
+		return RedirectToAction(nameof(Channels), new { serverId = serverId });
+	}
+
+	#endregion
+
+	#region Invites
 
 	/// <summary>
 	/// Displays all invites for a specific server.
@@ -351,48 +747,61 @@ public class ServersController : BaseController
 	}
 
 	/// <summary>
-	/// Creates a new channel in a server (API endpoint).
-	/// POST /Servers/{serverId}/Channels/Create
+	/// Displays the confirmation page for deleting an invite.
+	/// GET /Servers/{serverId}/Invites/{id}/Delete
 	/// </summary>
-	/// <param name="serverId">The server ID where the channel will be created.</param>
-	/// <param name="request">The channel creation request containing channel details.</param>
-	/// <returns>JSON response with created channel details or error.</returns>
-	[HttpPost("Servers/{serverId}/Channels/Create")]
+	/// <param name="serverId">The server ID the invite belongs to.</param>
+	/// <param name="id">The invite ID to delete.</param>
+	/// <returns>View with invite deletion confirmation.</returns>
+	[HttpGet("Servers/{serverId}/Invites/{id}/Delete")]
 	[Authorize(Policy = "ServerModerator")]
-	public async Task<IActionResult> CreateChannel(int serverId, [FromBody] CreateChannelRequest request)
+	public async Task<IActionResult> DeleteInvite(int serverId, int id)
 	{
-		if (!ModelState.IsValid)
-			return BadRequest(ModelState);
+		ServerInvite? invite = await _inviteService.GetInviteAsync(id);
+		if (invite == null || invite.ServerId != serverId)
+		{
+			return NotFound();
+		}
 
-		// Verify server exists
 		Server? server = await _serverService.GetServerAsync(serverId);
 		if (server == null)
-			return NotFound();
-
-		Channel channel = await _channelService.CreateChannelAsync(new Channel
 		{
-			Name = request.Name,
-			ServerId = serverId
-		});
+			return NotFound();
+		}
 
-		return Ok(new { id = channel.Id, name = channel.Name, serverId = channel.ServerId });
+		ViewBag.ServerName = server.Name;
+		ViewBag.ServerId = serverId;
+
+		return View(invite);
 	}
 
 	/// <summary>
-	/// Request model for creating a channel.
+	/// Handles the confirmation of deleting an invite.
+	/// POST /Servers/{serverId}/Invites/{id}/Delete
 	/// </summary>
-	public class CreateChannelRequest
+	/// <param name="serverId">The server ID the invite belongs to.</param>
+	/// <param name="id">The invite ID to delete.</param>
+	/// <returns>Redirect to invites list on success.</returns>
+	[HttpPost("Servers/{serverId}/Invites/{id}/Delete")]
+	[ValidateAntiForgeryToken]
+	[ActionName("DeleteInvite")]
+	[Authorize(Policy = "ServerModerator")]
+	public async Task<IActionResult> DeleteInviteConfirmed(int serverId, int id)
 	{
-		/// <summary>
-		/// Server ID where the channel will be created.
-		/// </summary>
-		public int ServerId { get; set; }
+		ServerInvite? invite = await _inviteService.GetInviteAsync(id);
+		if (invite == null || invite.ServerId != serverId)
+		{
+			return NotFound();
+		}
 
-		/// <summary>
-		/// Name of the channel.
-		/// </summary>
-		[System.ComponentModel.DataAnnotations.Required]
-		[System.ComponentModel.DataAnnotations.MaxLength(100)]
-		public string Name { get; set; } = string.Empty;
+		bool deleted = await _inviteService.DeleteInviteAsync(id);
+		if (!deleted)
+		{
+			return NotFound();
+		}
+
+		return RedirectToAction(nameof(Invites), new { serverId = serverId });
 	}
+
+	#endregion
 }
