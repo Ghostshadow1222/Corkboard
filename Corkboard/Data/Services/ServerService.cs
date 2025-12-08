@@ -78,6 +78,28 @@ public interface IServerService
 	/// <param name="userId">The unique identifier of the user.</param>
 	/// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="ServerMember"/> if found; otherwise, <see langword="null"/>.</returns>
 	Task<ServerMember?> GetServerMemberAsync(int serverId, string userId);
+
+	/// <summary>
+	/// Updates an existing server.
+	/// </summary>
+	/// <param name="server">Server entity to update.</param>
+	/// <returns>The updated server.</returns>
+	Task<Server> UpdateServerAsync(Server server);
+
+	/// <summary>
+	/// Deletes a server by id, including all related data (members, channels, messages, invites).
+	/// </summary>
+	/// <param name="id">Server id to delete.</param>
+	/// <returns>True if the server was deleted, false if it was not found.</returns>
+	Task<bool> DeleteServerAsync(int id);
+
+	/// <summary>
+	/// Removes a user from a server (leave server).
+	/// </summary>
+	/// <param name="serverId">Server id to leave.</param>
+	/// <param name="userId">User id to remove from the server.</param>
+	/// <returns>True if the user was removed, false if the user was not a member or server doesn't exist.</returns>
+	Task<bool> LeaveServerAsync(int serverId, string userId);
 }
 
 /// <summary>
@@ -201,5 +223,43 @@ public class ServerService : IServerService
 	{
 		return await _context.ServerMembers
 			.FirstOrDefaultAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
+	}
+
+	/// <inheritdoc/>
+	public async Task<Server> UpdateServerAsync(Server server)
+	{
+		_context.Servers.Update(server);
+		await _context.SaveChangesAsync();
+		return server;
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> DeleteServerAsync(int id)
+	{
+		Server? server = await _context.Servers.FindAsync(id);
+		if (server == null)
+		{
+			return false;
+		}
+
+		_context.Servers.Remove(server);
+		await _context.SaveChangesAsync();
+		return true;
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> LeaveServerAsync(int serverId, string userId)
+	{
+		ServerMember? member = await _context.ServerMembers
+			.FirstOrDefaultAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
+
+		if (member == null)
+		{
+			return false;
+		}
+
+		_context.ServerMembers.Remove(member);
+		await _context.SaveChangesAsync();
+		return true;
 	}
 }
