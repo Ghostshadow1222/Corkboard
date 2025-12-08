@@ -7,7 +7,7 @@
   <div id="messages" class="messages">
     @foreach (MessageDto message in Model.Messages)
     {
-      <p><strong>@message.SenderUsername</strong>: @message.Text</p>
+      <p data-timestamp="@message.Timestamp.ToString("o")"><strong>@message.SenderUsername</strong>: @message.Text</p>
     }
   </div>
 
