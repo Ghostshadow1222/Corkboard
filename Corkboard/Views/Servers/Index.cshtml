@@ -49,6 +49,12 @@
                                     Leave
                                 </a>
                             }
+                            else if (ViewBag.CurrentUserId == server.OwnerId)
+                            {
+                                <a asp-action="Edit" asp-controller="Servers" asp-route-serverId="@server.Id" class="btn btn-sm btn-outline-secondary ms-1">
+                                    Edit
+                                </a>
+                            }
                         </td>
                     </tr>
                 }
