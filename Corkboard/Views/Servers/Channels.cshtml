@@ -1,56 +1,23 @@
-﻿@model Corkboard.Models.ViewModels.ServersController.ServerChannelsViewModel
+﻿@* This view model represents the data needed for the Channels page, including server info, channels, and messages *@
+@model Corkboard.Models.ViewModels.ServersController.ServerChannelsViewModel
 
-<style>
-:root{--sb-bg:#ffffff;--sb-muted:#6b7280;--sb-accent:#f3f4f6;--sb-border:#e6e9ee;--sb-focus:#111827;--sb-link:#3b82f6}
-.sb-channels-root{display:flex;gap:12px;padding:12px;box-sizing:border-box;align-items:flex-start;height:calc(100vh - 80px)}
-.sb-servers-sidebar{width:72px;background:var(--sb-bg);border:1px solid var(--sb-border);border-radius:8px;padding:10px 8px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
-.sb-server-icon{width:48px;height:48px;border-radius:50%;background:var(--sb-accent);border:2px solid transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:600;color:var(--sb-focus);font-size:1.2rem;text-decoration:none;transition:border-color .2s}
-.sb-server-icon:hover{border-color:var(--sb-link)}
-.sb-server-icon.active{border-color:var(--sb-focus)}
-.sb-server-icon img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.sb-channels-sidebar{width:240px;background:var(--sb-bg);border:1px solid var(--sb-border);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
-.sb-server-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--sb-border)}
-.sb-server-name{font-size:1rem;margin:0;color:var(--sb-focus);font-weight:600}
-.sb-invite-btn{padding:6px 10px;background:var(--sb-link);color:#fff;border:none;border-radius:6px;font-size:0.85rem;cursor:pointer;text-decoration:none;display:inline-block}
-.sb-invite-btn:hover{opacity:0.9}
-.sb-section{display:flex;flex-direction:column;gap:4px}
-.sb-section-header{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
-.sb-section-title{font-size:0.85rem;color:var(--sb-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
-.sb-add-btn{background:none;border:none;color:var(--sb-muted);cursor:pointer;font-size:1.2rem;padding:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:4px}
-.sb-add-btn:hover{background:var(--sb-accent);color:var(--sb-focus)}
-.sb-channel-list{list-style:none;padding:0;margin:0}
-.sb-channel{margin:4px 0}
-.sb-channel a{display:block;padding:8px 10px;color:var(--sb-focus);text-decoration:none;border-radius:6px;font-size:0.95rem}
-.sb-channel a:hover{background:var(--sb-accent)}
-.sb-channel.active a{background:var(--sb-accent);box-shadow:inset 0 0 0 1px rgba(0,0,0,0.03)}
-.sb-chat-main{flex:1;background:var(--sb-bg);border:1px solid var(--sb-border);border-radius:8px;padding:16px;overflow-y:auto}
-.sb-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:1000}
-.sb-modal.show{display:flex}
-.sb-modal-content{background:var(--sb-bg);border-radius:8px;padding:24px;width:400px;max-width:90%}
-.sb-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.sb-modal-title{font-size:1.2rem;font-weight:600;margin:0}
-.sb-modal-close{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--sb-muted);padding:0;width:24px;height:24px}
-.sb-modal-close:hover{color:var(--sb-focus)}
-.sb-form-group{margin-bottom:16px}
-.sb-form-label{display:block;margin-bottom:6px;font-weight:500;color:var(--sb-focus)}
-.sb-form-input{width:100%;padding:8px 12px;border:1px solid var(--sb-border);border-radius:6px;font-size:0.95rem;box-sizing:border-box}
-.sb-form-input:focus{outline:none;border-color:var(--sb-link)}
-.sb-form-actions{display:flex;gap:8px;justify-content:flex-end}
-.sb-btn{padding:8px 16px;border-radius:6px;font-size:0.95rem;cursor:pointer;border:none}
-.sb-btn-primary{background:var(--sb-link);color:#fff}
-.sb-btn-primary:hover{opacity:0.9}
-.sb-btn-secondary{background:var(--sb-accent);color:var(--sb-focus)}
-.sb-btn-secondary:hover{background:#e5e7eb}
-</style>
+@section Styles {
+  <link rel="stylesheet" href="~/css/channels.css" />
+}
 
+@* Main container for the channels page layout, using flexbox for sidebar and main content *@
 <div class="sb-channels-root">
+  @* Sidebar displaying the list of servers the user is a member of *@
   <aside class="sb-servers-sidebar" aria-label="Servers">
+    @* Loop through each server the user belongs to and create a clickable icon *@
     @foreach (var srv in Model.UserServers)
     {
+      @* Determine if this server is the currently active one *@
       string activeClass = srv.Id == Model.ServerId ? "active" : "";
       <a href="@Url.Action("Channels", "Servers", new { serverId = srv.Id })" 
          class="sb-server-icon @activeClass" 
          title="@srv.Name">
+        @* Display server icon if available, otherwise show first letter of name *@
         @if (!string.IsNullOrEmpty(srv.IconUrl))
         {
           <img src="@srv.IconUrl" alt="@srv.Name" />
@@ -63,91 +30,66 @@
     }
   </aside>
 
+  @* Sidebar for channels within the selected server *@
   <nav class="sb-channels-sidebar" aria-label="Channels">
+    @* Header showing server name and invite button if user has permission *@
     <div class="sb-server-header">
       <h3 class="sb-server-name">@Model.ServerName</h3>
+      @* Show invite button for owners or moderators with invite permissions *@
       @if (ViewBag.UserRole == RoleType.Owner || (ViewBag.UserRole == RoleType.Moderator && ViewBag.AllowModeratorInvites))
       {
-        <a href="@Url.Action("CreateInvite", "Servers", new { serverId = Model.ServerId })" class="sb-invite-btn">Invite</a>
+        <a href="@Url.Action("Invites", "Servers", new { serverId = Model.ServerId })" class="sb-invite-btn">Invite</a>
       }
     </div>
     
+    @* Section for listing channels *@
     <div class="sb-section">
       <div class="sb-section-header">
         <span class="sb-section-title">Channels</span>
+        @* Add channel button for owners and moderators *@
         @if (ViewBag.IsOwner || ViewBag.IsModerator)
         {
-          <button type="button" class="sb-add-btn" onclick="showCreateChannelModal()" title="Create Channel">+</button>
+          <a href="@Url.Action("EditChannels", "Servers", new { serverId = Model.ServerId })">Edit</a>
         }
       </div>
+      @* List of channels in the server *@
       <ul class="sb-channel-list">
         @foreach (var ch in Model.Channels)
         {
-          string active = ch.Id == Model.ChannelId ? "active" : "";
+          @* Mark the active channel *@
+          string active = ch.Id == Model.SelectedChannelId ? "active" : "";
           <li class="sb-channel @active">
             <a href="@Url.Action("Channels", "Servers", new { serverId = Model.ServerId, channelId = ch.Id })">
               # @ch.Name
             </a>
           </li>
         }
+        @* Show message if no channels exist *@
+        @if (!Model.Channels.Any())
+        {
+          <li class="sb-no-channels">No channels exist yet</li>
+        }
       </ul>
+      <div class="sb-section-footer">
+        @* Button to open edit server link for owners *@
+        @if (ViewBag.IsOwner)
+        {
+          <a href="@Url.Action("Edit", "Servers", new { serverId = Model.ServerId })" class="sb-edit-server-btn">Edit Server</a>
+        }
     </div>
   </nav>
 
+  @* Main chat area displaying messages for the selected channel *@
   <main class="sb-chat-main">
-    @await Html.PartialAsync("_ChatPartial", new Corkboard.Models.ViewModels.ServersController.ChatPartialModel { ServerId = Model.ServerId, ChannelId = Model.ChannelId, Messages = Model.Messages })
+    @if (Model.SelectedChannelId == null)
+    {
+      <div class="sb-no-channel-selected">
+        <p>Please select a channel to view messages.</p>
+      </div>
+    }
+    else
+    {
+      @await Html.PartialAsync("_ChatPartial", new Corkboard.Models.ViewModels.ServersController.ChatPartialModel { ServerId = Model.ServerId, ChannelId = (int)Model.SelectedChannelId, Messages = Model.Messages })
+    }
   </main>
 </div>
-
-<div id="createChannelModal" class="sb-modal">
-  <div class="sb-modal-content">
-    <div class="sb-modal-header">
-      <h4 class="sb-modal-title">Create Channel</h4>
-      <button type="button" class="sb-modal-close" onclick="hideCreateChannelModal()">&times;</button>
-    </div>
-    <form id="createChannelForm" method="post" action="/Servers/@Model.ServerId/Channels/Create">
-      <input type="hidden" name="serverId" value="@Model.ServerId" />
-      <div class="sb-form-group">
-        <label class="sb-form-label" for="channelName">Channel Name</label>
-        <input type="text" id="channelName" name="name" class="sb-form-input" placeholder="general" required />
-      </div>
-      <div class="sb-form-actions">
-        <button type="button" class="sb-btn sb-btn-secondary" onclick="hideCreateChannelModal()">Cancel</button>
-        <button type="submit" class="sb-btn sb-btn-primary">Create</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-function showCreateChannelModal() {
-  document.getElementById('createChannelModal').classList.add('show');
-}
-function hideCreateChannelModal() {
-  document.getElementById('createChannelModal').classList.remove('show');
-  document.getElementById('createChannelForm').reset();
-}
-document.getElementById('createChannelForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  
-  try {
-    const response = await fetch(this.action, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        serverId: @Model.ServerId,
-        name: formData.get('name')
-      })
-    });
-    
-    if (response.ok) {
-      location.reload();
-    } else {
-      alert('Failed to create channel. Please try again.');
-    }
-  } catch (error) {
-    alert('An error occurred. Please try again.');
-  }
-});
-</script>

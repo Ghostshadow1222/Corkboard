@@ -1,0 +1,398 @@
+/* CSS Variables for the chat interface theme */
+:root {
+  --sb-bg: #ffffff;
+  --sb-muted: #6b7280;
+  --sb-accent: #f3f4f6;
+  --sb-border: #e6e9ee;
+  --sb-focus: #111827;
+  --sb-link: #3b82f6;
+}
+
+/* Main container for channels page layout */
+.sb-channels-root {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  box-sizing: border-box;
+  height: calc(100vh - 80px);
+}
+
+/* Sidebar for servers list */
+.sb-servers-sidebar {
+  width: 72px;
+  background: var(--sb-bg);
+  border: 1px solid var(--sb-border);
+  border-radius: 8px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+/* Server icon styling */
+.sb-server-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--sb-accent);
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--sb-focus);
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: border-color .2s;
+}
+
+.sb-server-icon:hover {
+  border-color: var(--sb-link);
+}
+
+.sb-server-icon.active {
+  border-color: var(--sb-focus);
+}
+
+.sb-server-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Sidebar for channels list */
+.sb-channels-sidebar {
+  width: 240px;
+  background: var(--sb-bg);
+  border: 1px solid var(--sb-border);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+/* Server header in channels sidebar */
+.sb-server-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--sb-border);
+}
+
+.sb-server-name {
+  font-size: 1rem;
+  margin: 0;
+  color: var(--sb-focus);
+  font-weight: 600;
+}
+
+/* Invite button styling */
+.sb-invite-btn {
+  padding: 6px 10px;
+  background: var(--sb-link);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.sb-invite-btn:hover {
+  opacity: 0.9;
+}
+
+/* Section container */
+.sb-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sb-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.sb-section-footer {
+  margin-top: auto;
+}
+
+.sb-section-title {
+  font-size: 0.85rem;
+  color: var(--sb-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Add button styling */
+.sb-add-btn {
+  background: none;
+  border: none;
+  color: var(--sb-muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.sb-add-btn:hover {
+  background: var(--sb-accent);
+  color: var(--sb-focus);
+}
+
+/* Channel list styling */
+.sb-channel-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sb-channel {
+  margin: 4px 0;
+}
+
+.sb-channel a {
+  display: block;
+  padding: 8px 10px;
+  color: var(--sb-focus);
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.sb-channel a:hover {
+  background: var(--sb-accent);
+}
+
+.sb-channel.active a {
+  background: var(--sb-accent);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+}
+
+/* Main chat area */
+.sb-chat-main {
+  flex: 1;
+  background: var(--sb-bg);
+  border: 1px solid var(--sb-border);
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal styling */
+.sb-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.sb-modal.show {
+  display: flex;
+}
+
+.sb-modal-content {
+  background: var(--sb-bg);
+  border-radius: 8px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90%;
+}
+
+.sb-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sb-modal-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.sb-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--sb-muted);
+  padding: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.sb-modal-close:hover {
+  color: var(--sb-focus);
+}
+
+/* Form styling */
+.sb-form-group {
+  margin-bottom: 16px;
+}
+
+.sb-form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--sb-focus);
+}
+
+.sb-form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--sb-border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.sb-form-input:focus {
+  outline: none;
+  border-color: var(--sb-link);
+}
+
+.sb-form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Button styling */
+.sb-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+}
+
+.sb-btn-primary {
+  background: var(--sb-link);
+  color: #fff;
+}
+
+.sb-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.sb-btn-secondary {
+  background: var(--sb-accent);
+  color: var(--sb-focus);
+}
+
+.sb-btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+/* Chat container styling */
+#chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Messages area - scrollable with messages at bottom */
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  scroll-behavior: smooth;
+}
+
+/* Individual message styling */
+#messages p {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--sb-accent);
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+#messages strong {
+  color: var(--sb-link);
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+/* Message form at bottom */
+#message-form {
+  padding: 16px;
+  border-top: 1px solid var(--sb-border);
+  background: var(--sb-bg);
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+#message-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--sb-border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: var(--sb-bg);
+  color: var(--sb-focus);
+  outline: none;
+}
+
+#message-input:focus {
+  border-color: var(--sb-link);
+}
+
+#send-btn {
+  padding: 10px 20px;
+  background: var(--sb-link);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+#send-btn:hover {
+  opacity: 0.9;
+}
+
+#send-btn:active {
+  opacity: 0.8;
+}
+
+/* No channel selected state */
+.sb-no-channel-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--sb-muted);
+  padding: 16px;
+}
