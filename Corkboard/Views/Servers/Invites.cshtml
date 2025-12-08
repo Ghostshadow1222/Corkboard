@@ -27,7 +27,6 @@
             @foreach (var invite in Model ?? Enumerable.Empty<ServerInvite>())
             {
                 @* Determine if the invite is still active *@
-                var isUsed = invite.IsUsed || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow);
                 <tr>
                     <td><code>@invite.InviteCode</code></td>
                     <td>@(invite.CreatedBy?.UserName ?? invite.CreatedById)</td>
