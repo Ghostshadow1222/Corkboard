@@ -72,7 +72,7 @@ public class ChatHub : Hub
         Message? newMessage = new Message
         {
             ChannelId = channelId,
-            SenderId = Context.UserIdentifier!,
+            SenderId = userId,
             MessageContent = messageContent,
         };
 
@@ -89,6 +89,7 @@ public class ChatHub : Hub
 
         MessageDto newMessageDto = new MessageDto
         {
+            Id = newMessage.Id,
             Text = newMessage.MessageContent,
             SenderUsername = senderName,
             Timestamp = newMessage.CreatedAt
@@ -96,5 +97,46 @@ public class ChatHub : Hub
 
         string groupName = $"channel:{channelId}";
         await Clients.Group(groupName).SendAsync("ReceiveMessage", newMessageDto);
+    }
+
+    public async Task<List<MessageDto>> LoadMoreMessages(int channelId, string beforeTimestampIso)
+    {
+        string? userId = Context.UserIdentifier;
+        if (userId == null)
+        {
+            throw new HubException("Not authenticated.");
+        }
+
+        // Authorize user membership in channel
+        Channel? channel = await _channelService.GetChannelAsync(channelId);
+        if (channel == null)
+        {
+            throw new HubException("Channel not found.");
+        }
+
+        bool isMember = await _serverService.IsUserMemberOfServerAsync(channel.ServerId, userId);
+        if (!isMember)
+        {
+            throw new HubException("Access denied to channel.");
+        }
+
+        // Parse the ISO timestamp
+        if (!DateTime.TryParse(beforeTimestampIso, out DateTime beforeTimestamp))
+        {
+            throw new HubException("Invalid timestamp format.");
+        }
+
+        // Fetch older messages
+        List<MessageDto> messages = 
+        (await _messageService.GetMessagesBeforeTimestampAsync(channelId, beforeTimestamp, 50))
+        .Select(m => new MessageDto
+        {
+            Id = m.Id,
+            Text = m.MessageContent,
+            SenderUsername = m.Sender?.UserName ?? m.SenderId,
+            Timestamp = m.CreatedAt
+        })
+        .ToList();
+        return messages;
     }
 }
