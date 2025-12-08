@@ -76,6 +76,13 @@ public interface IInviteService
 	/// <param name="invite">The invite view model with creation details.</param>
 	/// <returns>Validation result with errors, authorized status, and validated data.</returns>
 	public Task<InviteValidationResult> ValidateCreateInviteAsync(string currentUserId, ServerInviteViewModel invite);
+
+	/// <summary>
+	/// Deletes a server invite by id.
+	/// </summary>
+	/// <param name="id">Invite id to delete.</param>
+	/// <returns>True if the invite was deleted, false if it was not found.</returns>
+	public Task<bool> DeleteInviteAsync(int id);
 }
 
 /// <summary>
@@ -315,5 +322,19 @@ public class InviteService : IInviteService
 		result.ValidatedExpiresAt = invite.Expires ? invite.ExpiresAt : null;
 
 		return result;
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> DeleteInviteAsync(int id)
+	{
+		ServerInvite? invite = await _context.ServerInvites.FindAsync(id);
+		if (invite == null)
+		{
+			return false;
+		}
+
+		_context.ServerInvites.Remove(invite);
+		await _context.SaveChangesAsync();
+		return true;
 	}
 }
