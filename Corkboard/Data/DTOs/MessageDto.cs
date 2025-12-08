@@ -7,6 +7,11 @@ namespace Corkboard.Data.DTOs;
 public class MessageDto
 {
 	/// <summary>
+	/// The message ID.
+	/// </summary>
+	public int Id { get; set; }
+
+	/// <summary>
 	/// The textual content of the message.
 	/// </summary>
 	public string Text { get; set; } = null!;
