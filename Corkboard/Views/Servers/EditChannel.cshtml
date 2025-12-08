@@ -1,0 +1,47 @@
+@model Corkboard.Models.ViewModels.ServersController.ChannelFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Channel";
+}
+
+@* Page header for channel editing *@
+<h1>Edit Channel</h1>
+<h4>@ViewBag.ServerName</h4>
+<hr />
+
+@* Form for editing channel details *@
+<div class="row">
+    <div class="col-md-4">
+        @* Post the form data back to the EditChannel action *@
+        <form asp-action="EditChannel" asp-route-serverId="@Model.ServerId" asp-route-id="@Model.Id">
+            @* Show validation errors if the model isn't valid *@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            @* Hidden fields for ID and ServerId *@
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ServerId" />
+            
+            @* Channel name field *@
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            
+            @* Submit button to update the channel *@
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Link back to the server channels *@
+<div>
+    <a asp-action="Channels" asp-route-serverId="@Model.ServerId">Back to Server</a>
+</div>
+
+@* Include client-side validation scripts *@
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

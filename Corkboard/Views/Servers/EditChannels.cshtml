@@ -1,0 +1,50 @@
+@model IEnumerable<Corkboard.Models.Channel>
+
+@{
+    ViewData["Title"] = "Manage Channels";
+}
+
+@* List all of the channels for this server *@
+<h1>Manage Channels</h1>
+<h4>@ViewBag.ServerName</h4>
+
+<p>
+    <a asp-action="CreateChannel" asp-route-serverId="@ViewBag.ServerId" class="btn btn-primary">Create New Channel</a>
+</p>
+
+@* Table showing all channels with edit and delete options *@
+<table class="table table-striped" style="margin-top:1rem;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Created At (UTC)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @* Loop through and display each channel *@
+        @foreach (var channel in Model ?? Enumerable.Empty<Corkboard.Models.Channel>())
+        {
+            <tr>
+                <td>#@channel.Name</td>
+                <td>@(channel.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</td>
+                @* Links to edit and delete the channel *@
+                <td>
+                    <a asp-action="EditChannel" asp-route-serverId="@ViewBag.ServerId" asp-route-id="@channel.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a asp-action="DeleteChannel" asp-route-serverId="@ViewBag.ServerId" asp-route-id="@channel.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">
+        No channels found. Create one to get started!
+    </div>
+}
+
+<div>
+    <a asp-action="Channels" asp-route-serverId="@ViewBag.ServerId">Back to Server</a>
+</div>
