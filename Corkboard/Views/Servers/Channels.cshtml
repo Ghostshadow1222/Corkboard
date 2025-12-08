@@ -34,11 +34,11 @@
   <nav class="sb-channels-sidebar" aria-label="Channels">
     @* Header showing server name and invite button if user has permission *@
     <div class="sb-server-header">
-      <h3 class="sb-server-name">@Model.ServerName</h3>
+      <h2 class="sb-server-name" title="@Model.ServerName">@Model.ServerName</h2>
       @* Show invite button for owners or moderators with invite permissions *@
       @if (ViewBag.UserRole == RoleType.Owner || (ViewBag.UserRole == RoleType.Moderator && ViewBag.AllowModeratorInvites))
       {
-        <a href="@Url.Action("Invites", "Servers", new { serverId = Model.ServerId })" class="sb-invite-btn">Invite</a>
+        <a href="@Url.Action("Invites", "Servers", new { serverId = Model.ServerId })" class="btn btn-purple">Invite</a>
       }
     </div>
     
@@ -59,7 +59,7 @@
           @* Mark the active channel *@
           string active = ch.Id == Model.SelectedChannelId ? "active" : "";
           <li class="sb-channel @active">
-            <a href="@Url.Action("Channels", "Servers", new { serverId = Model.ServerId, channelId = ch.Id })">
+            <a href="@Url.Action("Channels", "Servers", new { serverId = Model.ServerId, channelId = ch.Id })" title="@ch.Name">
               # @ch.Name
             </a>
           </li>
