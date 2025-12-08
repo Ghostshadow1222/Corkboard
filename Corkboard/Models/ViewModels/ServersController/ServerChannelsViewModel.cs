@@ -8,7 +8,7 @@ public class ServerChannelsViewModel
 {
     public int ServerId { get; set; }
 
-    public int ChannelId { get; set; }
+    public int? SelectedChannelId { get; set; }
 
     public string ServerName { get; set; } = string.Empty;
 
