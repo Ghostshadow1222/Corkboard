@@ -6,30 +6,30 @@ using Microsoft.AspNetCore.Authorization;
 namespace Corkboard.Authorization.Handlers;
 
 /// <summary>
-/// Authorization handler that verifies a user is a moderator or owner of a server.
-/// Extracts the server ID from route data and checks moderator status via IServerService.
+/// Authorization handler that verifies a user is the owner of a server.
+/// Extracts the server ID from route data and checks ownership via IServerService.
 /// </summary>
-public class ServerModeratorHandler : AuthorizationHandler<ServerModeratorRequirement>
+public class ServerOwnerHandler : AuthorizationHandler<ServerOwnerRequirement>
 {
 	private readonly IServerService _serverService;
 
 	/// <summary>
-	/// Creates a new instance of <see cref="ServerModeratorHandler"/>.
+	/// Creates a new instance of <see cref="ServerOwnerHandler"/>.
 	/// </summary>
-	/// <param name="serverService">Service for server moderator checks.</param>
-	public ServerModeratorHandler(IServerService serverService)
+	/// <param name="serverService">Service for server ownership checks.</param>
+	public ServerOwnerHandler(IServerService serverService)
 	{
 		_serverService = serverService;
 	}
 
 	/// <summary>
-	/// Handles the authorization check for server moderator status.
+	/// Handles the authorization check for server ownership.
 	/// </summary>
 	/// <param name="context">The authorization context.</param>
-	/// <param name="requirement">The server moderator requirement to evaluate.</param>
+	/// <param name="requirement">The server owner requirement to evaluate.</param>
 	protected override async Task HandleRequirementAsync(
 		AuthorizationHandlerContext context,
-		ServerModeratorRequirement requirement)
+		ServerOwnerRequirement requirement)
 	{
 		// Get user ID from claims
 		string? userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -63,9 +63,9 @@ public class ServerModeratorHandler : AuthorizationHandler<ServerModeratorRequir
 			return;
 		}
 		
-		// Check if user is a moderator or owner of the server
-		bool isModerator = await _serverService.IsUserModeratorOfServerAsync(serverId, userId);
-		if (isModerator)
+		// Check if user is the owner of the server
+		bool isOwner = await _serverService.IsUserOwnerOfServerAsync(serverId, userId);
+		if (isOwner)
 		{
 			context.Succeed(requirement);
 			return;

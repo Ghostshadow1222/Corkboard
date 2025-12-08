@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Corkboard.Models;
+namespace Corkboard.Models.ViewModels.ServersController;
 
 /// <summary>
 /// View model used when creating or editing a server from a form.

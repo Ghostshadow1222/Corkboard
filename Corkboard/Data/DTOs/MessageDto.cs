@@ -7,6 +7,11 @@ namespace Corkboard.Data.DTOs;
 public class MessageDto
 {
 	/// <summary>
+	/// The message ID.
+	/// </summary>
+	public int Id { get; set; }
+
+	/// <summary>
 	/// The textual content of the message.
 	/// </summary>
 	public string Text { get; set; } = null!;
@@ -14,12 +19,7 @@ public class MessageDto
 	/// <summary>
 	/// The sender's username.
 	/// </summary>
-	public string Sender { get; set; } = null!;
-
-	/// <summary>
-	/// Optional URL to the sender's profile image.
-	/// </summary>
-	public string? ImageUrl { get; set; }
+	public string SenderUsername { get; set; } = null!;
 
 	/// <summary>
 	/// UTC timestamp when the message was created.

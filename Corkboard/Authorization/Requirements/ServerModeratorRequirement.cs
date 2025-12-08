@@ -12,21 +12,13 @@ public class ServerModeratorRequirement : IAuthorizationRequirement
 	/// The route parameter name to extract the server ID from.
 	/// Defaults to "serverId" but can be customized for different routes.
 	/// </summary>
-	public string ServerIdRouteKey { get; set; } = "serverId";
+	public string ServerIdRouteKey { get; }
 
 	/// <summary>
-	/// Creates a new instance of <see cref="ServerModeratorRequirement"/> with default route key.
+	/// Creates a new instance of <see cref="ServerModeratorRequirement"/> with the provided route key.
 	/// </summary>
-	public ServerModeratorRequirement()
-	{
-	}
-
-	/// <summary>
-	/// Creates a new instance of <see cref="ServerModeratorRequirement"/> with a custom route key.
-	/// </summary>
-	/// <param name="serverIdRouteKey">The route parameter name containing the server ID.</param>
 	public ServerModeratorRequirement(string serverIdRouteKey)
-	{
-		ServerIdRouteKey = serverIdRouteKey;
-	}
+    {
+        ServerIdRouteKey = serverIdRouteKey;
+    }
 }

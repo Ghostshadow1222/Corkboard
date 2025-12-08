@@ -43,7 +43,7 @@ public class Message
 	/// </summary>
 	[Required]
 	[MaxLength(5000)]
-	public string Content { get; set; } = string.Empty;
+	public string MessageContent { get; set; } = string.Empty;
 
 	/// <summary>
 	/// UTC timestamp when the message was created. Defaults to the time the instance is created.

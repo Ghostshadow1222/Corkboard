@@ -1,13 +1,13 @@
-﻿@model Corkboard.Models.ViewModels.ServersController.ServerViewModel
+@model Corkboard.Models.ViewModels.ServersController.ServerFormViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Edit Server";
 }
 
-@* Page header for server creation *@
-<h1>Create</h1>
+@* Page header for server editing *@
+<h1>Edit Server</h1>
 
-@* Display any error messages that came back from the server *@
+@* Display any error messages *@
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger">
@@ -15,15 +15,18 @@
     </div>
 }
 
-@* Form for creating a new server with basic details *@
-<h4>Server</h4>
+@* Form for editing server details *@
+<h4>Server Details</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        @* Post the form data back to the Create action *@
-        <form asp-action="Create">
+        @* Post the form data back to the Edit action *@
+        <form asp-action="Edit" asp-route-id="@Model.Id">
             @* Show validation errors if the model isn't valid *@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            @* Hidden field for ID *@
+            <input type="hidden" asp-for="Id" />
             
             @* Server name field *@
             <div class="form-group">
@@ -42,21 +45,28 @@
             @* Optional description of what the server is about *@
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             
-            @* Submit button to create the server *@
+            @* Privacy level dropdown *@
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <label asp-for="PrivacyLevel" class="control-label"></label>
+                <select asp-for="PrivacyLevel" class="form-control" asp-items="Html.GetEnumSelectList<Corkboard.Models.PrivacyLevel>()"></select>
+                <span asp-validation-for="PrivacyLevel" class="text-danger"></span>
+            </div>
+            
+            @* Submit button to update the server *@
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
-@* Link back to the main servers list *@
+@* Link back to the server channels *@
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Channels" asp-route-serverId="@Model.Id">Back to Server</a>
 </div>
 
 @* Include client-side validation scripts *@

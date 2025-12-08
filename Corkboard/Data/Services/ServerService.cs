@@ -54,6 +54,15 @@ public interface IServerService
 	Task<bool> IsUserModeratorOfServerAsync(int serverId, string userId);
 
 	/// <summary>
+	/// Determines whether the specified user is the owner of the server identified by the given ID.
+	/// </summary>
+	/// <param name="serverId">The unique identifier of the server to check ownership for.</param>
+	/// <param name="userId">The unique identifier of the user whose ownership status is to be verified. Cannot be null or empty.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the user is the
+	/// owner of the specified server; otherwise, <see langword="false"/>.</returns>
+	Task<bool> IsUserOwnerOfServerAsync(int serverId, string userId);
+
+	/// <summary>
     /// Determines whether the specified user is a member of the given server.
     /// </summary>
     /// <param name="serverId">The unique identifier of the server to check membership for.</param>
@@ -61,6 +70,36 @@ public interface IServerService
     /// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the user is a
     /// member of the specified server; otherwise, <see langword="false"/>.</returns>
 	Task<bool> IsUserMemberOfServerAsync(int serverId, string userId);
+
+	/// <summary>
+	/// Retrieves the server member record for the specified user in the given server.
+	/// </summary>
+	/// <param name="serverId">The unique identifier of the server.</param>
+	/// <param name="userId">The unique identifier of the user.</param>
+	/// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="ServerMember"/> if found; otherwise, <see langword="null"/>.</returns>
+	Task<ServerMember?> GetServerMemberAsync(int serverId, string userId);
+
+	/// <summary>
+	/// Updates an existing server.
+	/// </summary>
+	/// <param name="server">Server entity to update.</param>
+	/// <returns>The updated server.</returns>
+	Task<Server> UpdateServerAsync(Server server);
+
+	/// <summary>
+	/// Deletes a server by id, including all related data (members, channels, messages, invites).
+	/// </summary>
+	/// <param name="id">Server id to delete.</param>
+	/// <returns>True if the server was deleted, false if it was not found.</returns>
+	Task<bool> DeleteServerAsync(int id);
+
+	/// <summary>
+	/// Removes a user from a server (leave server).
+	/// </summary>
+	/// <param name="serverId">Server id to leave.</param>
+	/// <param name="userId">User id to remove from the server.</param>
+	/// <returns>True if the user was removed, false if the user was not a member or server doesn't exist.</returns>
+	Task<bool> LeaveServerAsync(int serverId, string userId);
 }
 
 /// <summary>
@@ -164,9 +203,63 @@ public class ServerService : IServerService
 	}
 
 	/// <inheritdoc/>
+	public async Task<bool> IsUserOwnerOfServerAsync(int serverId, string userId)
+	{
+		return await _context.ServerMembers.AnyAsync(sm =>
+			sm.ServerId == serverId
+			&& sm.UserId == userId
+			&& sm.Role == RoleType.Owner);
+	}
+
+	/// <inheritdoc/>
 	public async Task<bool> IsUserMemberOfServerAsync(int serverId, string userId)
 	{
 		return await _context.ServerMembers.AnyAsync(sm =>
 			sm.ServerId == serverId && sm.UserId == userId);
+	}
+
+	/// <inheritdoc/>
+	public async Task<ServerMember?> GetServerMemberAsync(int serverId, string userId)
+	{
+		return await _context.ServerMembers
+			.FirstOrDefaultAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
+	}
+
+	/// <inheritdoc/>
+	public async Task<Server> UpdateServerAsync(Server server)
+	{
+		_context.Servers.Update(server);
+		await _context.SaveChangesAsync();
+		return server;
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> DeleteServerAsync(int id)
+	{
+		Server? server = await _context.Servers.FindAsync(id);
+		if (server == null)
+		{
+			return false;
+		}
+
+		_context.Servers.Remove(server);
+		await _context.SaveChangesAsync();
+		return true;
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> LeaveServerAsync(int serverId, string userId)
+	{
+		ServerMember? member = await _context.ServerMembers
+			.FirstOrDefaultAsync(sm => sm.ServerId == serverId && sm.UserId == userId);
+
+		if (member == null)
+		{
+			return false;
+		}
+
+		_context.ServerMembers.Remove(member);
+		await _context.SaveChangesAsync();
+		return true;
 	}
 }

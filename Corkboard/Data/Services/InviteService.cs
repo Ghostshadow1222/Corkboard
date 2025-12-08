@@ -1,4 +1,5 @@
 ﻿using Corkboard.Models;
+using Corkboard.Models.ViewModels.InvitesController;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
@@ -22,6 +23,13 @@ public interface IInviteService
 	/// <param name="userId">The user's Id.</param>
 	/// <returns>List of invites created by the user.</returns>
 	public Task<System.Collections.Generic.List<ServerInvite>> GetInvitesCreatedByUserAsync(string userId);
+
+	/// <summary>
+	/// Gets all invites for a specific server, including creator information.
+	/// </summary>
+	/// <param name="serverId">The server's Id.</param>
+	/// <returns>List of invites for the server.</returns>
+	public Task<System.Collections.Generic.List<ServerInvite>> GetInvitesForServerAsync(int serverId);
 
 	/// <summary>
 	/// Creates a new server invite and persists it to the database.
@@ -68,6 +76,13 @@ public interface IInviteService
 	/// <param name="invite">The invite view model with creation details.</param>
 	/// <returns>Validation result with errors, authorized status, and validated data.</returns>
 	public Task<InviteValidationResult> ValidateCreateInviteAsync(string currentUserId, ServerInviteViewModel invite);
+
+	/// <summary>
+	/// Deletes a server invite by id.
+	/// </summary>
+	/// <param name="id">Invite id to delete.</param>
+	/// <returns>True if the invite was deleted, false if it was not found.</returns>
+	public Task<bool> DeleteInviteAsync(int id);
 }
 
 /// <summary>
@@ -97,6 +112,17 @@ public class InviteService : IInviteService
 			.Include(i => i.Server)
 			.Include(i => i.CreatedBy)
 			.Where(i => i.CreatedById == userId)
+			.ToListAsync();
+	}
+
+	/// <inheritdoc/>
+	public async Task<System.Collections.Generic.List<ServerInvite>> GetInvitesForServerAsync(int serverId)
+	{
+		return await _context.ServerInvites
+			.Include(i => i.Server)
+			.Include(i => i.CreatedBy)
+			.Where(i => i.ServerId == serverId)
+			.OrderByDescending(i => i.CreatedAt)
 			.ToListAsync();
 	}
 
@@ -296,5 +322,19 @@ public class InviteService : IInviteService
 		result.ValidatedExpiresAt = invite.Expires ? invite.ExpiresAt : null;
 
 		return result;
+	}
+
+	/// <inheritdoc/>
+	public async Task<bool> DeleteInviteAsync(int id)
+	{
+		ServerInvite? invite = await _context.ServerInvites.FindAsync(id);
+		if (invite == null)
+		{
+			return false;
+		}
+
+		_context.ServerInvites.Remove(invite);
+		await _context.SaveChangesAsync();
+		return true;
 	}
 }

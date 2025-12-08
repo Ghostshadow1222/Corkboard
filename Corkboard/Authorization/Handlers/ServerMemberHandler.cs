@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Corkboard.Authorization.Requirements;
-using Corkboard.Authorization.Helpers;
 using Corkboard.Data.Services;
 using Microsoft.AspNetCore.Authorization;
 
@@ -13,23 +12,14 @@ namespace Corkboard.Authorization.Handlers;
 public class ServerMemberHandler : AuthorizationHandler<ServerMemberRequirement>
 {
 	private readonly IServerService _serverService;
-	private readonly RouteDataHelper _routeDataHelper;
-	private readonly IHttpContextAccessor _httpContextAccessor;
 
 	/// <summary>
 	/// Creates a new instance of <see cref="ServerMemberHandler"/>.
 	/// </summary>
 	/// <param name="serverService">Service for server membership checks.</param>
-	/// <param name="routeDataHelper">Helper for extracting server IDs from route data.</param>
-	/// <param name="httpContextAccessor">Accessor for HTTP context and route data.</param>
-	public ServerMemberHandler(
-		IServerService serverService,
-		RouteDataHelper routeDataHelper,
-		IHttpContextAccessor httpContextAccessor)
+	public ServerMemberHandler(IServerService serverService)
 	{
 		_serverService = serverService;
-		_routeDataHelper = routeDataHelper;
-		_httpContextAccessor = httpContextAccessor;
 	}
 
 	/// <summary>
@@ -49,32 +39,38 @@ public class ServerMemberHandler : AuthorizationHandler<ServerMemberRequirement>
 			return;
 		}
 
-		// Get HTTP context and route data
-		HttpContext? httpContext = _httpContextAccessor.HttpContext;
-		if (httpContext == null)
+		// Get httpContext
+		if (context.Resource is not HttpContext httpContext)
 		{
 			context.Fail();
 			return;
 		}
 
-		// Try to get server ID from route data
-		RouteData routeData = httpContext.GetRouteData();
-		int? serverId = await _routeDataHelper.GetServerIdFromRouteAsync(routeData, requirement.ServerIdRouteKey);
-		if (serverId == null)
+		// Get groupId value as a string within an object
+		object? routeValue = null;
+		httpContext.Request.RouteValues.TryGetValue(requirement.ServerIdRouteKey, out routeValue);
+		if (routeValue == null)
 		{
 			context.Fail();
 			return;
 		}
 
-		// Check if user is a member of the server
-		bool isMember = await _serverService.IsUserMemberOfServerAsync(serverId.Value, userId);
+		// Try to convert groupId string to int
+		string serverIdStr = routeValue.ToString() ?? string.Empty;
+		if (!int.TryParse(serverIdStr, out int serverId))
+		{
+			context.Fail();
+			return;
+		}
+		
+		// Check for membership record once we have groupId and userId
+		bool isMember = await _serverService.IsUserMemberOfServerAsync(serverId, userId);
 		if (isMember)
 		{
 			context.Succeed(requirement);
+			return;
 		}
-		else
-		{
-			context.Fail();
-		}
+		
+		context.Fail();
 	}
 }

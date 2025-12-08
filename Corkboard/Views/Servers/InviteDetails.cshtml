@@ -1,0 +1,81 @@
+@model Corkboard.Models.ServerInvite
+@{
+    ViewData["Title"] = "Invite Details";
+}
+
+@* Display detailed information about a specific invite *@
+<h1>Invite Details</h1>
+<h4>@ViewBag.ServerName</h4>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Invite Code
+        </dt>
+        <dd class="col-sm-10">
+            @Model.InviteCode
+        </dd>
+        <dt class="col-sm-2">
+            Server
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Server.Name
+        </dd>
+        <dt class="col-sm-2">
+            Created At
+        </dt>
+        <dd class="col-sm-10">
+            @Model.CreatedAt.ToString("g") UTC
+        </dd>
+        <dt class="col-sm-2">
+            Expires
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.ExpiresAt?.ToString("g") ?? "Never")
+        </dd>
+        <dt class="col-sm-2">
+            Current Uses
+        </dt>
+        <dd class="col-sm-10">
+            @Model.TimesUsed
+        </dd>
+        <dt class="col-sm-2">
+            One Time Use
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.OneTimeUse ? "Yes" : "No")
+        </dd>
+        <dt class="col-sm-2">
+            Status
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.IsUsed)
+            {
+                <span class="text-muted">Used</span>
+            }
+            else if (Model.ExpiresAt != null && Model.ExpiresAt < DateTime.UtcNow)
+            {
+                <span class="text-warning">Expired</span>
+            }
+            else
+            {
+                <span class="text-success">Active</span>
+            }
+        </dd>
+        @if (!string.IsNullOrEmpty(Model.InvitedUserId))
+        {
+            <dt class="col-sm-2">
+                Invited User
+            </dt>
+            <dd class="col-sm-10">
+                @Model.InvitedUserId
+            </dd>
+        }
+    </dl>
+    
+    <div class="mt-3">
+        <a asp-action="Invites" asp-route-serverId="@Model.ServerId" class="btn btn-secondary">Back to Invites</a>
+        <a asp-action="DeleteInvite" asp-route-serverId="@Model.ServerId" asp-route-id="@Model.Id" class="btn btn-danger">Delete Invite</a>
+    </div>
+</div>

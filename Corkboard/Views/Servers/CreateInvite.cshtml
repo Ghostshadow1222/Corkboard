@@ -1,33 +1,29 @@
-﻿@model Corkboard.Models.ServerInviteViewModel
+@model Corkboard.Models.ViewModels.InvitesController.ServerInviteViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Invite";
 }
 
 @* Page header for creating a new server invite *@
-<h1>Create</h1>
+<h1>Create Invite for @ViewBag.ServerName</h1>
 
 @* Form for generating a new invite to a server *@
-<h4>Invite</h4>
+<h4>Invite Details</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         @* Submit form to create the invite *@
-        <form asp-action="Create">
+        <form asp-action="CreateInvite" asp-route-serverId="@Model.ServerId">
             @* Display any validation errors *@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            @* Select which server to create an invite for *@
-            <div class="form-group">
-                <label asp-for="ServerId" class="control-label"></label>
-                <select asp-for="ServerId" class="form-control" asp-items="@(ViewBag.Servers as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)"></select>
-                <span asp-validation-for="ServerId" class="text-danger"></span>
-            </div>
+            @* Hidden field for ServerId *@
+            <input type="hidden" asp-for="ServerId" />
 
             @* Specify who to invite (by username) *@
             <div class="form-group">
                 <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
+                <input asp-for="Username" class="form-control" placeholder="Leave blank for anyone" />
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
 
@@ -58,7 +54,7 @@
 
             @* Submit button to create the invite *@
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create Invite" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -66,7 +62,7 @@
 
 @* Link back to the invites list *@
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Invites" asp-route-serverId="@Model.ServerId">Back to Invites</a>
 </div>
 
 @* Include validation scripts and toggle script for expiry date picker *@
