@@ -8,59 +8,63 @@
 @* List all of the invites for this server *@
 <h1>Invites for @ViewBag.ServerName</h1>
 
-<p>
-    <a asp-action="CreateInvite" asp-route-serverId="@ViewBag.ServerId" class="btn btn-primary">Create New Invite</a>
-</p>
-
 @* Table showing invite codes, created dates, and statuses *@
-<table class="table table-striped" id="invitesTable" style="margin-top:1rem;">
-    <thead>
-        <tr>
-            <th>Code</th>
-            <th>Created By</th>
-            <th>Created At (UTC)</th>
-            <th>Expires At (UTC)</th>
-            <th>Uses</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @* Loop through and display each invite *@
-        @foreach (var invite in Model ?? Enumerable.Empty<ServerInvite>())
-        {
-            @* Determine if the invite is still active *@
-            var isUsed = invite.IsUsed || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow);
+<div style="margin-top:1rem; max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem;">
+    <table class="table table-striped mb-0" id="invitesTable">
+        <thead style="position: sticky; top: 0; background-color: white; z-index: 10;">
             <tr>
-                <td><code>@invite.InviteCode</code></td>
-                <td>@(invite.CreatedBy?.UserName ?? invite.CreatedById)</td>
-                <td>@(invite.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</td>
-                <td>@(invite.ExpiresAt?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
-                <td>@invite.TimesUsed @(invite.OneTimeUse ? "(one-time)" : "")</td>
-                <td>
-                    @* Show the current status of the invite *@
-                    @if (invite.IsUsed)
-                    {
-                        <span class="text-muted">Used</span>
-                    }
-                    else if (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow)
-                    {
-                        <span class="text-warning">Expired</span>
-                    }
-                    else
-                    {
-                        <span class="text-success">Active</span>
-                    }
-                </td>
-                @* Link to view the full details of this invite *@
-                <td>
-                    <a asp-action="InviteDetails" asp-route-serverId="@ViewBag.ServerId" asp-route-id="@invite.Id" class="btn btn-sm btn-outline-primary">Details</a>
-                </td>
+                <th>Code</th>
+                <th>Created By</th>
+                <th>Created At (UTC)</th>
+                <th>Expires At (UTC)</th>
+                <th>Uses</th>
+                <th>Status</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
-
-<div>
-    <a asp-action="Channels" asp-route-serverId="@ViewBag.ServerId">Back to Server</a>
+        </thead>
+        <tbody>
+            @* Loop through and display each invite *@
+            @foreach (var invite in Model ?? Enumerable.Empty<ServerInvite>())
+            {
+                @* Determine if the invite is still active *@
+                var isUsed = invite.IsUsed || (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow);
+                <tr>
+                    <td><code>@invite.InviteCode</code></td>
+                    <td>@(invite.CreatedBy?.UserName ?? invite.CreatedById)</td>
+                    <td>@(invite.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</td>
+                    <td>@(invite.ExpiresAt?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                    <td>@invite.TimesUsed @(invite.OneTimeUse ? "(one-time)" : "")</td>
+                    <td>
+                        @* Show the current status of the invite *@
+                        @if (invite.IsUsed)
+                        {
+                            <span class="text-muted">Used</span>
+                        }
+                        else if (invite.ExpiresAt != null && invite.ExpiresAt < DateTime.UtcNow)
+                        {
+                            <span class="text-warning">Expired</span>
+                        }
+                        else
+                        {
+                            <span class="text-success">Active</span>
+                        }
+                    </td>
+                    @* Link to view the full details of this invite *@
+                    <td>
+                        <a asp-action="InviteDetails" asp-route-serverId="@ViewBag.ServerId" asp-route-id="@invite.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
+
+<div class="d-flex justify-content-between mt-3">
+    <div>
+        <a asp-action="Channels" asp-route-serverId="@ViewBag.ServerId">Back to Server</a>
+    </div>
+    <div>
+        <a asp-action="CreateInvite" asp-route-serverId="@ViewBag.ServerId" class="btn btn-primary">Create New Invite</a>
+    </div>
+</div>
+
