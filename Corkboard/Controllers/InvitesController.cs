@@ -46,6 +46,15 @@ public class InvitesController : BaseController
 		return RedirectToAction(nameof(Redeem), new { code = inviteCode });
 	}
 
+	/// <summary>
+	/// Displays invite details for a specific invite code and indicates membership status.
+	/// GET /Invites/Redeem/{code}
+	/// </summary>
+	/// <param name="code">The invite code to validate and redeem.</param>
+	/// <returns>
+	/// The invite view when valid; <see cref="NotFound()"/> if invalid or for another user.
+	/// Sets <c>ViewBag.AlreadyMember</c> when the user is already a member.
+	/// </returns>
 	[HttpGet("/Invites/Redeem/{code}")]
 	public async Task<IActionResult> Redeem(string code)
 	{

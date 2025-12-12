@@ -86,6 +86,11 @@ public class ServerInvite : IValidatableObject
 	/// </summary>
 	public List<ServerMember> CreatedMemberships { get; set; } = new List<ServerMember>();
 
+	/// <summary>
+	/// Validates business rules for invites, such as expiry and single-use constraints.
+	/// </summary>
+	/// <param name="validationContext">The validation context.</param>
+	/// <returns>An enumeration of validation errors; empty when valid.</returns>
 	public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 	{
 		if (InvitedUserId != null && !OneTimeUse)

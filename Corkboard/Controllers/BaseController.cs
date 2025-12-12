@@ -33,6 +33,14 @@ public abstract class BaseController : Controller
 	protected string? CurrentUserId => _currentUserId ??= _userManager.GetUserId(User);
 	private string? _currentUserId;
 
+	/// <summary>
+	/// Gets the current user's role within the specified server.
+	/// </summary>
+	/// <param name="serverId">The server ID to evaluate membership for.</param>
+	/// <returns>
+	/// The user's <see cref="RoleType"/> if they are a member; otherwise <c>null</c>.
+	/// Returns <c>null</c> if the user is not authenticated.
+	/// </returns>
 	protected async Task<RoleType?> GetUserRoleInServerAsync(int serverId)
 	{
 		if (CurrentUserId == null) return null;
@@ -42,12 +50,22 @@ public abstract class BaseController : Controller
 		return member?.Role;
 	}
 
+	/// <summary>
+	/// Determines whether the current user is a moderator or owner of the specified server.
+	/// </summary>
+	/// <param name="serverId">The server ID to check authorization against.</param>
+	/// <returns><c>true</c> if the user is a moderator or owner; otherwise <c>false</c>.</returns>
 	protected async Task<bool> IsUserModeratorOrOwnerAsync(int serverId)
 	{
 		RoleType? role = await GetUserRoleInServerAsync(serverId);
 		return role == RoleType.Moderator || role == RoleType.Owner;
 	}
 
+	/// <summary>
+	/// Determines whether the current user is the owner of the specified server.
+	/// </summary>
+	/// <param name="serverId">The server ID to check ownership for.</param>
+	/// <returns><c>true</c> if the user is the server owner; otherwise <c>false</c>.</returns>
 	protected async Task<bool> IsUserOwnerAsync(int serverId)
 	{
 		RoleType? role = await GetUserRoleInServerAsync(serverId);
