@@ -1,23 +1,23 @@
 namespace Corkboard.Data.DTOs;
 
 /// <summary>
-/// Data Transfer Object representing a message returned by the API.
-/// Contains only the fields required by clients to display a message.
+/// Data Transfer Object representing a message for client consumption.
+/// Includes only the fields required to render chat items.
 /// </summary>
 public class MessageDto
 {
 	/// <summary>
-	/// The message ID.
+	/// Unique identifier of the message.
 	/// </summary>
 	public int Id { get; set; }
 
 	/// <summary>
-	/// The textual content of the message.
+	/// Text content of the message.
 	/// </summary>
 	public string Text { get; set; } = null!;
 
 	/// <summary>
-	/// The sender's username.
+	/// Username of the message sender.
 	/// </summary>
 	public string SenderUsername { get; set; } = null!;
 
