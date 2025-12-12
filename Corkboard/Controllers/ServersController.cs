@@ -213,6 +213,15 @@ public class ServersController : BaseController
 		return RedirectToAction(nameof(Index));
 	}
 
+	/// <summary>
+	/// Displays the join page for a server, validating membership and privacy.
+	/// GET /Servers/{serverId}/Join and /Servers/Join
+	/// </summary>
+	/// <param name="serverId">Optional server ID to join; if <c>null</c>, shows generic join page.</param>
+	/// <returns>
+	/// The join view when allowed, redirects if already a member, or <see cref="NotFound()"/> when server is missing.
+	/// Sets <c>TempData</c> messages for membership or privacy constraints.
+	/// </returns>
 	[HttpGet("Servers/{serverId}/Join")]
 	[HttpGet("Servers/Join")]
 	public async Task<IActionResult> Join(int? serverId)
@@ -245,6 +254,15 @@ public class ServersController : BaseController
 		return View(server);
 	}
 
+	/// <summary>
+	/// Handles joining a public server for the current user.
+	/// POST /Servers/{serverId}/Join
+	/// </summary>
+	/// <param name="serverId">The server ID to join.</param>
+	/// <returns>
+	/// Redirects to channels on success, back to join page for privacy issues, or <see cref="NotFound()"/> if server is missing.
+	/// Sets <c>TempData</c> messages when already a member or joining is not allowed.
+	/// </returns>
 	[HttpPost("Servers/{serverId}/Join")]
 	[ValidateAntiForgeryToken]
 	[ActionName("Join")]
